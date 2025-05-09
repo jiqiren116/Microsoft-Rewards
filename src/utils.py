@@ -13,6 +13,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from .constants import BASE_URL
 
+import logging
+
+LOG_TAG = "[CMY]"
+
 
 class Utils:
     def __init__(self, webdriver: WebDriver):
@@ -133,6 +137,7 @@ class Utils:
                     pass
             tries += 1
             time.sleep(1)
+        logging.info(f"{LOG_TAG} Failed to get Bing info!")
         return None
 
     def checkBingLogin(self):
@@ -160,6 +165,7 @@ class Utils:
             (By.ID, "iLooksGood"),
             (By.ID, "idSIButton9"),
             (By.CSS_SELECTOR, ".ms-Button.ms-Button--primary"),
+            (By.CSS_SELECTOR, '[data-testid="secondaryButton"]'),
         ]
         result = False
         for button in buttons:
