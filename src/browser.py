@@ -12,6 +12,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from src.userAgentGenerator import GenerateUserAgent
 from src.utils import Utils
 
+LOG_TAG = "[CMY]"
 
 class Browser:
     """WebDriver wrapper class."""
@@ -35,6 +36,7 @@ class Browser:
             self.userAgentMetadata,
             newBrowserConfig,
         ) = GenerateUserAgent().userAgent(self.browserConfig, mobile)
+        logging.info(f"{LOG_TAG} GenerateUserAgent().userAgent done")
         if newBrowserConfig:
             self.browserConfig = newBrowserConfig
             Utils.saveBrowserConfig(self.userDataDir, self.browserConfig)
@@ -78,7 +80,10 @@ class Browser:
             options=options,
             seleniumwire_options=seleniumwireOptions,
             user_data_dir=self.userDataDir.as_posix(),
+            driver_executable_path=r"D:\EdgeDownload\chromedriver-win64\chromedriver-win64\chromedriver.exe",
+            browser_executable_path=r"C:\Program Files\Google\Chrome\Application\chrome.exe",
         )
+        logging.info(f"{LOG_TAG} webdriver.Chrome done")
 
         seleniumLogger = logging.getLogger("seleniumwire")
         seleniumLogger.setLevel(logging.ERROR)

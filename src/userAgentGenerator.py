@@ -4,6 +4,9 @@ from typing import Any
 import requests
 from requests import HTTPError, Response
 
+import logging
+LOG_TAG = "[CMY]"
+
 
 class GenerateUserAgent:
     """A class for generating user agents for Microsoft Rewards Farmer."""
@@ -46,6 +49,7 @@ class GenerateUserAgent:
 
         system = self.getSystemComponents(mobile)
         app = self.getAppComponents(mobile)
+        logging.info(f"{LOG_TAG} getAppComponents done")
         uaTemplate = (
             self.USER_AGENT_TEMPLATES.get("edge_mobile", "")
             if mobile
@@ -117,6 +121,7 @@ class GenerateUserAgent:
         edgeMajorVersion = edgeVersion.split(".")[0]
 
         chromeVersion = self.getChromeVersion()
+        logging.info(f"{LOG_TAG} getChromeVersion done")
         chromeMajorVersion = chromeVersion.split(".")[0]
         chromeReducedVersion = f"{chromeMajorVersion}.0.0.0"
 
@@ -172,10 +177,32 @@ class GenerateUserAgent:
         Returns:
             str: The latest version of Google Chrome.
         """
-        response = self.getWebdriverPage(
-            "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions.json"
-        )
-        data = response.json()
+        data = {
+            "timestamp": "2025-04-17T22:09:31.864Z",
+            "channels": {
+                "Stable": {
+                "channel": "Stable",
+                "version": "135.0.7049.95",
+                "revision": "1427262"
+                },
+                "Beta": {
+                "channel": "Beta",
+                "version": "136.0.7103.33",
+                "revision": "1440670"
+                },
+                "Dev": {
+                "channel": "Dev",
+                "version": "137.0.7127.2",
+                "revision": "1447489"
+                },
+                "Canary": {
+                "channel": "Canary",
+                "version": "137.0.7130.0",
+                "revision": "1448236"
+                }
+            }
+        }
+
         return data["channels"]["Stable"]["version"]
 
     @staticmethod

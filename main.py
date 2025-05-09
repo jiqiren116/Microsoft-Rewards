@@ -13,12 +13,20 @@ from src.notifier import Notifier
 
 POINTS_COUNTER = 0
 
+LOG_TAG = "[CMY]"
+
+# 在调用 argumentParser 前检查并添加 -v 参数
+if '-v' not in sys.argv and '--visible' not in sys.argv:
+    sys.argv.append('-v')
 
 def main():
     setupLogging()
+    logging.info(f"{LOG_TAG} setupLogging done")
     args = argumentParser()
+    logging.info(f"{LOG_TAG} argumentParser done")
     notifier = Notifier(args)
     loadedAccounts = setupAccounts()
+    logging.info(f"{LOG_TAG} setupAccounts done")
     for currentAccount in loadedAccounts:
         try:
             executeBot(currentAccount, notifier, args)
@@ -126,6 +134,7 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
     )
     with Browser(mobile=False, account=currentAccount, args=args) as desktopBrowser:
         accountPointsCounter = Login(desktopBrowser).login()
+        logging.info(f"{LOG_TAG} Login(desktopBrowser).login() done")
         startingPoints = accountPointsCounter
         logging.info(
             f"[POINTS] You have {desktopBrowser.utils.formatNumber(accountPointsCounter)} points on your account !"

@@ -21,13 +21,13 @@ class Login:
         while True:
             try:
                 self.utils.waitUntilVisible(
-                    By.CSS_SELECTOR, 'html[data-role-name="MeePortal"]', 0.1
+                    By.CSS_SELECTOR, 'html[data-role-name="MeePortal"]', 5
                 )
                 alreadyLoggedIn = True
                 break
             except Exception:  # pylint: disable=broad-except
                 try:
-                    self.utils.waitUntilVisible(By.ID, "loginHeader", 0.1)
+                    self.utils.waitUntilVisible(By.ID, "loginHeader", 5)
                     break
                 except Exception:  # pylint: disable=broad-except
                     if self.utils.tryDismissAllMessages():
