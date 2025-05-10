@@ -15,13 +15,42 @@ POINTS_COUNTER = 0
 
 LOG_TAG = "[CMY]"
 
-# 在调用 argumentParser 前检查并添加 -v 参数
-if '-v' not in sys.argv and '--visible' not in sys.argv:
-    sys.argv.append('-v')
+def setupConfig() -> dict:
+    """
+    检查 config.json 文件是否存在，若不存在则创建默认配置文件，最后读取并返回配置内容。
+
+    Returns:
+        dict: 从 config.json 文件中读取的配置信息。
+    """
+    configPath = Path(__file__).resolve().parent / "config.json"
+    if not configPath.exists():
+        # 创建默认配置文件 add_visible_flag为true表示默认开启-v参数，代表浏览器可见
+        default_config = {
+            "driver_executable_path": "your driver path",
+            "browser_executable_path": "your browser path",
+            "add_visible_flag": True
+        }
+        configPath.write_text(
+            json.dumps(default_config, indent=4),
+            encoding="utf-8"
+        )
+        noConfigNotice = """
+    [CONFIG] Configuration file "config.json" not found.
+    [CONFIG] A new file has been created, please edit with your settings and save.
+    """
+        logging.warning(noConfigNotice)
+        exit()
+    loadedConfig = json.loads(configPath.read_text(encoding="utf-8"))
+    return loadedConfig
 
 def main():
     setupLogging()
     logging.info(f"{LOG_TAG} setupLogging done")
+    # 调用新函数设置配置
+    config = setupConfig()
+    # 根据配置决定是否添加 -v 参数
+    if config.get("add_visible_flag", False) and '-v' not in sys.argv and '--visible' not in sys.argv:
+        sys.argv.append('-v')
     args = argumentParser()
     logging.info(f"{LOG_TAG} argumentParser done")
     notifier = Notifier(args)

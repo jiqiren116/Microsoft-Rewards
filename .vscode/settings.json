@@ -20,5 +20,6 @@
     },
     "**/__pycache__": true
   },
-  "python.analysis.typeCheckingMode": "basic"
+  "python.analysis.typeCheckingMode": "basic",
+  "svn.ignoreMissingSvnWarning": true
 }

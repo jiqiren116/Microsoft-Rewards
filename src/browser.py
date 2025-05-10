@@ -2,6 +2,7 @@ import contextlib
 import logging
 import random
 import uuid
+import json
 from pathlib import Path
 from typing import Any
 
@@ -40,6 +41,10 @@ class Browser:
         if newBrowserConfig:
             self.browserConfig = newBrowserConfig
             Utils.saveBrowserConfig(self.userDataDir, self.browserConfig)
+        # 读取配置文件
+        config_path = Path(__file__).parent.parent / "config.json"
+        with open(config_path, 'r', encoding='utf-8') as f:
+            self.config = json.load(f)
         self.webdriver = self.browserSetup()
         self.utils = Utils(self.webdriver)
 
@@ -80,8 +85,9 @@ class Browser:
             options=options,
             seleniumwire_options=seleniumwireOptions,
             user_data_dir=self.userDataDir.as_posix(),
-            driver_executable_path=r"D:\EdgeDownload\chromedriver-win64\chromedriver-win64\chromedriver.exe",
-            browser_executable_path=r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+            # 从配置文件中获取路径
+            driver_executable_path=self.config["driver_executable_path"],
+            browser_executable_path=self.config["browser_executable_path"],
         )
         logging.info(f"{LOG_TAG} webdriver.Chrome done")
 
