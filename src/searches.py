@@ -38,6 +38,8 @@ class Searches:
             "言必信，行必果", "读书破万卷，下笔如有神", "夫君子之行，静以修身，俭以养德", "老骥伏枥，志在千里", "一日不读书，胸臆无佳想", "王侯将相宁有种乎", "淡泊以明志。宁静而致远,", "卧龙跃马终黄土"]
         Hot_words_apis = "https://api.gmya.net/Api/" # 故梦热门词API接口网站
         keywords_source = ['BaiduHot', 'TouTiaoHot', 'DouYinHot', 'WeiBoHot']
+        # 打乱keywords_source列表的顺序
+        random.shuffle(keywords_source)
         current_source_index = 0; # 当前搜索词来源的索引
     
         while current_source_index < len(keywords_source): # 循环遍历所有搜索词来源
@@ -65,8 +67,10 @@ class Searches:
         logging.info(
             "[BING] "
             + f"Starting {self.browser.browserType.capitalize()} Edge Bing searches... "
-            + f"搜索次数为: {numberOfSearches}"
+            + f"剩余搜索次数为: {numberOfSearches}"
         )
+
+        temp_numberOfSearches = numberOfSearches
 
         search_terms = self.getHotSearch()
         # 统计search_terms中的元素个数，然后跟numberOfSearches作比较，打印log
@@ -76,28 +80,34 @@ class Searches:
             logging.info(f"[BING] 获取到的搜索词个数小于需要搜索的个数!!!!!!!!!!!!!!!!!!!!!!!!")
         else:
             logging.info(f"[BING] 获取到的搜索词个数大于等于需要搜索的个数")
-            # 仅保留前numberOfSearches个搜索词，避免搜索次数过多
-            search_terms = search_terms[:numberOfSearches]
 
         i = 0
         for word in search_terms:
+            # 如果剩余搜索次数小于等于0，退出循环
+            if numberOfSearches <= 0:
+                break
+
             i += 1
             # 每隔4次搜索暂停10分钟
             if i % 4 == 0:
                 logging.info(f"[BING] 已搜索 {i} 次，暂停 {PAUSE_TIME} 分钟...")
                 time.sleep(PAUSE_TIME * 60)
+
             logging.info("[BING] " + f"{i}/{numberOfSearches}, 搜索词：{word}")
             points = self.bingSearch(word)
             logging.info(f"[BING] 搜索前的积分：{pointsCounter}, 搜索后的积分：{points}")
             if points <= pointsCounter:
-                relatedTerms = self.getRelatedTerms(word)[:2]
+                relatedTerms = self.getRelatedTerms(word)
                 logging.info(f"[BING] 搜索词：{word} 搜索失败，尝试获取相关搜索词, 相关搜索词为：{relatedTerms}")
                 for term in relatedTerms:
                     points = self.bingSearch(term)
+                    time.sleep(3 * 60)
                     if not points <= pointsCounter:
                         logging.info(f"[BING] 相关搜索词：{term} 搜索成功，搜索后的积分：{points}")
+                        numberOfSearches -= 1  # 减少剩余搜索次数
                         break
             else:
+                numberOfSearches -= 1  # 减少剩余搜索次数
                 logging.info(f"[BING] 搜索词：{word} 搜索成功，不需要获取相关搜索词")
             if points > 0:
                 pointsCounter = points

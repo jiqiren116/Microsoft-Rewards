@@ -17,12 +17,15 @@ class DailySet:
         logging.info("[DAILY SET] " + "Trying to complete the Daily Set...")
         self.browser.utils.goHome()
         data = self.browser.utils.getDashboardData()["dailySetPromotions"]
-        logging.info("[DAILY SET] " + "!!!data: " + str(data))
         todayDate = datetime.now().strftime("%m/%d/%Y")
         for activity in data.get(todayDate, []):
+            logging.info(f'[DAILY SET] activity["title"] = {activity["title"]}, activity["complete"] = {activity["complete"]}')
             try:
                 if activity["complete"] is False:
                     cardId = int(activity["offerId"][-1:])
+                    logging.info(
+                        "[DAILY SET] " + f"Opening Daily Set activity {cardId}" 
+                    )
                     self.activities.openDailySetActivity(cardId)
                     if activity["promotionType"] == "urlreward":
                         logging.info(

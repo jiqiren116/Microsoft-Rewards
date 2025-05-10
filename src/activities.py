@@ -1,10 +1,15 @@
 import random
 import time
+import logging
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 
 from src.browser import Browser
 
+LOG_TAG = "[CMY]"
 
 class Activities:
     def __init__(self, browser: Browser):
@@ -12,6 +17,22 @@ class Activities:
         self.webdriver = browser.webdriver
 
     def openDailySetActivity(self, cardId: int):
+        # 检查元素是否存在
+        try:
+            # 判断元素是否存在
+            element = WebDriverWait(self.webdriver, 10).until(
+                EC.presence_of_element_located((By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a'))
+            )
+            logging.info(LOG_TAG + "元素存在")
+            
+            # 判断元素是否可点击
+            element = WebDriverWait(self.webdriver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a'))
+            )
+            logging.info(LOG_TAG + "元素可点击")
+        except Exception as e:
+            logging.error(LOG_TAG + "元素不存在或不可点击")
+
         self.webdriver.find_element(
             By.XPATH,
             f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a',
