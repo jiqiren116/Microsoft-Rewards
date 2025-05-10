@@ -127,7 +127,7 @@ class Utils:
         while tries < maxTries:
             with contextlib.suppress(Exception):
                 response = requests.get(
-                    "https://www.bing.com/rewards/panelflyout/getuserinfo",
+                    "https://cn.bing.com/rewards/panelflyout/getuserinfo",
                     cookies=cookies,
                 )
                 if response.status_code == requests.codes.ok:
@@ -165,7 +165,7 @@ class Utils:
             (By.ID, "iLooksGood"),
             (By.ID, "idSIButton9"),
             (By.CSS_SELECTOR, ".ms-Button.ms-Button--primary"),
-            (By.CSS_SELECTOR, '[data-testid="secondaryButton"]'),
+            (By.CSS_SELECTOR, '[data-testid="primaryButton"]'),
         ]
         result = False
         for button in buttons:

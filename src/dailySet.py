@@ -17,6 +17,7 @@ class DailySet:
         logging.info("[DAILY SET] " + "Trying to complete the Daily Set...")
         self.browser.utils.goHome()
         data = self.browser.utils.getDashboardData()["dailySetPromotions"]
+        logging.info("[DAILY SET] " + "!!!data: " + str(data))
         todayDate = datetime.now().strftime("%m/%d/%Y")
         for activity in data.get(todayDate, []):
             try:
