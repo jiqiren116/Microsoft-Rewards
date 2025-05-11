@@ -91,15 +91,25 @@ class Utils:
         reloads = 0
         interval = 1
         intervalCount = 0
+
         while True:
             self.tryDismissCookieBanner()
-            with contextlib.suppress(Exception):
-                self.webdriver.find_element(By.ID, "more-activities")
+            try:
+                # 使用 WebDriverWait 等待元素出现，设置超时时间为 5 秒
+                WebDriverWait(self.webdriver, 15).until(
+                    ec.presence_of_element_located((By.ID, "reward_header_rewards"))
+                )
+                logging.info("Element 'reward_header_rewards' found. Exiting goHome loop.")
                 break
+            except Exception as e:
+                # 输出详细的错误信息
+                logging.warning(f"Element 'reward_header_rewards' not found: {e}")
+
             currentUrl = urllib.parse.urlparse(self.webdriver.current_url)
             if (
                 currentUrl.hostname != targetUrl.hostname
             ) and self.tryDismissAllMessages():
+                logging.info("Current URL doesn't match target URL. Navigating back to home.")
                 time.sleep(1)
                 self.webdriver.get(BASE_URL)
             time.sleep(interval)
@@ -107,8 +117,10 @@ class Utils:
             if intervalCount >= reloadInterval:
                 intervalCount = 0
                 reloads += 1
+                logging.info(f"Refreshing page. Reload count: {reloads}")
                 self.webdriver.refresh()
                 if reloads >= reloadThreshold:
+                    logging.info("Reached reload threshold. Exiting goHome loop.")
                     break
 
     def getAnswerCode(self, key: str, string: str) -> str:
