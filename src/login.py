@@ -111,13 +111,10 @@ class Login:
         )
         while True:
             currentUrl = urllib.parse.urlparse(self.webdriver.current_url)
-            logging.info(f"{LOG_TAG} Current URL: {currentUrl}")
             if currentUrl.hostname == "cn.bing.com" and currentUrl.path == "/":
-                logging.info(f'{LOG_TAG} currentUrl.hostname == "cn.bing.com" and currentUrl.path == "/"')
                 time.sleep(3)
                 self.utils.tryDismissBingCookieBanner()
                 with contextlib.suppress(Exception):
-                    logging.info(f"{LOG_TAG} with contextlib.suppress(Exception) ")
                     if self.utils.checkBingLogin():
                         logging.info("[LOGIN] " + "Bing login successful!")
                         return

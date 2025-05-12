@@ -1,4 +1,6 @@
 import requests
+from pathlib import Path
+import json
 
 MAX_LENGTHS = {
     "telegram": 4096,
@@ -13,6 +15,10 @@ class Notifier:
             for key, value in vars(args).items()
             if key in MAX_LENGTHS.keys() and value is not None
         }
+        # 读取配置文件
+        config_path = Path(__file__).parent.parent / "config.json"
+        with open(config_path, 'r', encoding='utf-8') as f:
+            self.config = json.load(f)
 
     def send(self, message: str):
         for type in self.args:
@@ -33,3 +39,9 @@ class Notifier:
         url = self.args["discord"]
         data = {"username": "Microsoft Rewards Farmer", "content": message}
         requests.post(url, data=data)
+
+    def wechat(self, message):
+        # 发送方法为get，格式为https://www.pushplus.plus/send?token=xxxx&title=XXX&content=XXX&template=html
+        pushplus_token = self.config["pushplus_token"]
+        url = f"https://www.pushplus.plus/send?token={pushplus_token}&title=Microsoft rewards&content={message}&template=html"
+        requests.get(url)

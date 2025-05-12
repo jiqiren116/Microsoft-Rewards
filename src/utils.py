@@ -10,6 +10,7 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.remote.webelement import WebElement
 
 from .constants import BASE_URL
 
@@ -30,11 +31,13 @@ class Utils:
             ec.visibility_of_element_located((by, selector))
         )
 
-    def waitUntilClickable(self, by: str, selector: str, timeToWait: float = 10):
-        WebDriverWait(self.webdriver, timeToWait).until(
+    def waitUntilClickable(
+        self, by: str, selector: str, timeToWait: float = 10
+    ) -> WebElement:
+        return WebDriverWait(self.webdriver, timeToWait).until(
             ec.element_to_be_clickable((by, selector))
         )
-
+    
     def waitForMSRewardElement(self, by: str, selector: str):
         loadingTimeAllowed = 5
         refreshsAllowed = 5
@@ -234,8 +237,6 @@ class Utils:
         logging.info(f"[BING] targetDesktop: {targetDesktop}, progressDesktop: {progressDesktop}")
 
         remainingDesktop = int((targetDesktop - progressDesktop) / searchPoints)
-        # 因为赚取从第三次搜索开始，因此要比剩余搜索次数多几次
-        remainingDesktop += 4
         remainingMobile = 0
         if dashboard["userStatus"]["levelInfo"]["activeLevel"] != "Level1":
             progressMobile = counters["mobileSearch"][0]["pointProgress"]

@@ -28,7 +28,8 @@ def setupConfig() -> dict:
         default_config = {
             "driver_executable_path": "your driver path",
             "browser_executable_path": "your browser path",
-            "add_visible_flag": True
+            "add_visible_flag": True,
+            "pushplus_token": "your pushplus token"
         }
         configPath.write_text(
             json.dumps(default_config, indent=4),
@@ -177,6 +178,7 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
         ) = desktopBrowser.utils.getRemainingSearches()
         if remainingSearches != 0:
             accountPointsCounter = Searches(desktopBrowser).bingSearches(
+                False,
                 remainingSearches
             )
 
@@ -187,27 +189,20 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
             ) as mobileBrowser:
                 accountPointsCounter = Login(mobileBrowser).login()
                 accountPointsCounter = Searches(mobileBrowser).bingSearches(
+                    True,
                     remainingSearchesM
                 )
 
+        earnedPoints = int(desktopBrowser.utils.formatNumber(accountPointsCounter - startingPoints))
+        havePoints = int(desktopBrowser.utils.formatNumber(accountPointsCounter))
         logging.info(
-            f"[POINTS] You have earned {desktopBrowser.utils.formatNumber(accountPointsCounter - startingPoints)} points today !"
+            f"[POINTS] You have earned {earnedPoints} points today !"
         )
         logging.info(
-            f"[POINTS] You are now at {desktopBrowser.utils.formatNumber(accountPointsCounter)} points !\n"
+            f"[POINTS] You are now at {havePoints} points !\n"
         )
 
-        notifier.send(
-            "\n".join(
-                [
-                    "Microsoft Rewards Farmer",
-                    f"Account: {currentAccount.get('username', '')}",
-                    f"Points earned today: {desktopBrowser.utils.formatNumber(accountPointsCounter - startingPoints)}",
-                    f"Total points: {desktopBrowser.utils.formatNumber(accountPointsCounter)}",
-                ]
-            )
-        )
-
+        notifier.wechat(f"今天获得积分：{earnedPoints}，总积分：{havePoints}")
 
 if __name__ == "__main__":
     main()
