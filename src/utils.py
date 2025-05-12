@@ -99,7 +99,6 @@ class Utils:
                 WebDriverWait(self.webdriver, 15).until(
                     ec.presence_of_element_located((By.ID, "reward_header_rewards"))
                 )
-                logging.info("Element 'reward_header_rewards' found. Exiting goHome loop.")
                 break
             except Exception as e:
                 # 输出详细的错误信息
@@ -218,7 +217,7 @@ class Utils:
 
     def getRemainingSearches(self):
         dashboard = self.getDashboardData()
-        searchPoints = 1
+        searchPoints = 3 # 目前每次搜索获得的积分为3
         counters = dashboard["userStatus"]["counters"]
 
         if "pcSearch" not in counters:
@@ -232,14 +231,11 @@ class Utils:
 
         for item in counters['pcSearch']:
             targetDesktop += item.get('pointProgressMax', 0)
+        logging.info(f"[BING] targetDesktop: {targetDesktop}, progressDesktop: {progressDesktop}")
 
-        if targetDesktop in [33, 102]:
-            # Level 1 or 2 EU/South America
-            searchPoints = 3
-        elif targetDesktop == 55 or targetDesktop >= 170:
-            # Level 1 or 2 US
-            searchPoints = 5
         remainingDesktop = int((targetDesktop - progressDesktop) / searchPoints)
+        # 因为赚取从第三次搜索开始，因此要比剩余搜索次数多几次
+        remainingDesktop += 4
         remainingMobile = 0
         if dashboard["userStatus"]["levelInfo"]["activeLevel"] != "Level1":
             progressMobile = counters["mobileSearch"][0]["pointProgress"]

@@ -70,21 +70,25 @@ class Searches:
             + f"剩余搜索次数为: {numberOfSearches}"
         )
 
-        temp_numberOfSearches = numberOfSearches
+        temp_numberOfSearches = numberOfSearches  # 临时变量，用于记录剩余搜索次数，方便循环时退出
 
         search_terms = self.getHotSearch()
         # 统计search_terms中的元素个数，然后跟numberOfSearches作比较，打印log
         logging.info(f"[BING] 获取到的搜索词个数为：{len(search_terms)}, 需要搜索的个数为：{numberOfSearches}")
 
         if len(search_terms) < numberOfSearches:
-            logging.info(f"[BING] 获取到的搜索词个数小于需要搜索的个数!!!!!!!!!!!!!!!!!!!!!!!!")
+            logging.info(f"[BING] 获取到的搜索词个数小于需要搜索的个数，不满足需求!!!!!!!!!!!!!!!!!!!!!!!!")
+            # 如果不够就再加上一段
+            search_terms += self.getHotSearch()
+
         else:
-            logging.info(f"[BING] 获取到的搜索词个数大于等于需要搜索的个数")
+            logging.info(f"[BING] 获取到的搜索词个数大于等于需要搜索的个数，满足需求")
 
         i = 0
         for word in search_terms:
             # 如果剩余搜索次数小于等于0，退出循环
-            if numberOfSearches <= 0:
+            if temp_numberOfSearches <= 0:
+                logging.info(f"[BING] 剩余搜索次数为0，退出循环")
                 break
 
             i += 1
@@ -103,11 +107,13 @@ class Searches:
                     points = self.bingSearch(term)
                     time.sleep(3 * 60)
                     if not points <= pointsCounter:
-                        logging.info(f"[BING] 相关搜索词：{term} 搜索成功，搜索后的积分：{points}")
-                        numberOfSearches -= 1  # 减少剩余搜索次数
+                        logging.info(f"[BING] 相关搜索词：{term} 搜索成功，搜索前的积分：{pointsCounter}，搜索后的积分：{points}")
+                        temp_numberOfSearches -= 1  # 减少剩余搜索次数
                         break
+                    else:
+                        logging.info(f"[BING] 相关搜索词：{term} 搜索失败")
             else:
-                numberOfSearches -= 1  # 减少剩余搜索次数
+                temp_numberOfSearches -= 1  # 减少剩余搜索次数
                 logging.info(f"[BING] 搜索词：{word} 搜索成功，不需要获取相关搜索词")
             if points > 0:
                 pointsCounter = points

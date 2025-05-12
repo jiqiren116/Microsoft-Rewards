@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from src.browser import Browser
 
-LOG_TAG = "[CMY]"
+LOG_TAG = "[Activities]"
 
 class Activities:
     def __init__(self, browser: Browser):
@@ -17,26 +17,26 @@ class Activities:
         self.webdriver = browser.webdriver
 
     def openDailySetActivity(self, cardId: int):
-        # 检查元素是否存在
+        xpath = f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a'
         try:
             # 判断元素是否存在
             element = WebDriverWait(self.webdriver, 10).until(
-                EC.presence_of_element_located((By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a'))
+                EC.presence_of_element_located((By.XPATH, xpath))
             )
-            logging.info(LOG_TAG + "元素存在")
             
             # 判断元素是否可点击
             element = WebDriverWait(self.webdriver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a'))
+                EC.element_to_be_clickable((By.XPATH, xpath))
             )
-            logging.info(LOG_TAG + "元素可点击")
-        except Exception as e:
-            logging.error(LOG_TAG + "元素不存在或不可点击")
+            logging.info(LOG_TAG + "元素存在 并且 元素可点击")
 
-        self.webdriver.find_element(
-            By.XPATH,
-            f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a',
-        ).click()
+            # 使用 JavaScript 执行点击操作
+            self.webdriver.execute_script("arguments[0].click();", element)
+            time.sleep(random.randint(10, 15))
+            logging.info(LOG_TAG + "已使用 JavaScript 点击元素")
+        except Exception as e:
+            logging.error(LOG_TAG + f"元素不存在或不可点击: {e}")
+
         self.browser.utils.switchToNewTab(8)
 
     def openMorePromotionsActivity(self, cardId: int):
