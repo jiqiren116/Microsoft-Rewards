@@ -193,8 +193,8 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
                     remainingSearchesM
                 )
 
-        earnedPoints = int(desktopBrowser.utils.formatNumber(accountPointsCounter - startingPoints))
-        havePoints = int(desktopBrowser.utils.formatNumber(accountPointsCounter))
+        earnedPoints = desktopBrowser.utils.formatNumber(accountPointsCounter - startingPoints)
+        havePoints = desktopBrowser.utils.formatNumber(accountPointsCounter)
         logging.info(
             f"[POINTS] You have earned {earnedPoints} points today !"
         )
@@ -202,7 +202,7 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
             f"[POINTS] You are now at {havePoints} points !\n"
         )
 
-        notifier.wechat(f"今天获得积分：{earnedPoints}，总积分：{havePoints}")
+        notifier.wechat(f"本次获得积分：{earnedPoints}，总积分：{havePoints}")
 
 if __name__ == "__main__":
     main()

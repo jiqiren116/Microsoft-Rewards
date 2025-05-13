@@ -15,12 +15,14 @@ class MorePromotions:
         morePromotions = self.browser.utils.getDashboardData()["morePromotions"]
         i = 0
         for promotion in morePromotions:
+            logging.info(f"[MORE PROMO][OUT] promotion['title'] = {promotion['title']}, promotion['complete'] = {promotion['complete']}")
             try:
                 i += 1
                 if (
                     promotion["complete"] is False
                     and promotion["pointProgressMax"] != 0
                 ):
+                    logging.info(f"[MORE PROMO][IN] promotion['title'] = {promotion['title']}, promotion['complete'] = {promotion['complete']}")
                     self.activities.openMorePromotionsActivity(i)
                     if promotion["promotionType"] == "urlreward":
                         self.activities.completeSearch()

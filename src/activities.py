@@ -16,8 +16,7 @@ class Activities:
         self.browser = browser
         self.webdriver = browser.webdriver
 
-    def openDailySetActivity(self, cardId: int):
-        xpath = f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a'
+    def _click_element_by_xpath(self, xpath: str):
         try:
             # 判断元素是否存在
             element = WebDriverWait(self.webdriver, 10).until(
@@ -37,13 +36,14 @@ class Activities:
         except Exception as e:
             logging.error(LOG_TAG + f"元素不存在或不可点击: {e}")
 
+    def openDailySetActivity(self, cardId: int):
+        xpath = f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a'
+        self._click_element_by_xpath(xpath)
         self.browser.utils.switchToNewTab(8)
 
     def openMorePromotionsActivity(self, cardId: int):
-        self.webdriver.find_element(
-            By.XPATH,
-            f'//*[@id="more-activities"]/div/mee-card[{cardId}]/div/card-content/mee-rewards-more-activities-card-item/div/a',
-        ).click()
+        xpath = f'//*[@id="more-activities"]/div/mee-card[{cardId}]/div/card-content/mee-rewards-more-activities-card-item/div/a'
+        self._click_element_by_xpath(xpath)
         self.browser.utils.switchToNewTab(8)
 
     def completeSearch(self):

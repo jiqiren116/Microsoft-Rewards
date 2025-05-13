@@ -3,8 +3,10 @@ import logging
 import random
 import uuid
 import json
+import shutil
 from pathlib import Path
 from typing import Any
+from selenium.common.exceptions import SessionNotCreatedException
 
 import ipapi
 import seleniumwire.undetected_chromedriver as webdriver
@@ -60,9 +62,7 @@ class Browser:
         with contextlib.suppress(Exception):
             self.webdriver.quit()
 
-    def browserSetup(
-        self,
-    ) -> WebDriver:
+    def browserSetup(self) -> WebDriver:
         options = webdriver.ChromeOptions()
         options.headless = self.headless
         options.add_argument(f"--lang={self.localeLang}")
@@ -81,15 +81,29 @@ class Browser:
                 "no_proxy": "localhost,127.0.0.1",
             }
 
-        driver = webdriver.Chrome(
-            options=options,
-            seleniumwire_options=seleniumwireOptions,
-            user_data_dir=self.userDataDir.as_posix(),
-            # 从配置文件中获取路径
-            driver_executable_path=self.config["driver_executable_path"],
-            browser_executable_path=self.config["browser_executable_path"],
-        )
-        logging.info(f"{LOG_TAG} webdriver.Chrome done")
+        try:
+            driver = webdriver.Chrome(
+                options=options,
+                seleniumwire_options=seleniumwireOptions,
+                user_data_dir=self.userDataDir.as_posix(),
+                # 从配置文件中获取路径
+                driver_executable_path=self.config["driver_executable_path"],
+                browser_executable_path=self.config["browser_executable_path"],
+            )
+            logging.info(f"{LOG_TAG} webdriver.Chrome done")
+        except SessionNotCreatedException as e:
+            logging.error(f"{LOG_TAG} Session creation failed: {e}")
+            # 定位 sessions 文件夹
+            sessions_dir = Path(__file__).parent.parent / "sessions"
+            if sessions_dir.exists() and sessions_dir.is_dir():
+                try:
+                    # 清空 sessions 文件夹
+                    shutil.rmtree(sessions_dir)
+                    logging.info(f"{LOG_TAG} Sessions folder cleared.")
+                except Exception as rm_error:
+                    logging.error(f"{LOG_TAG} Failed to clear sessions folder: {rm_error}")
+            # 重新抛出异常，让上层代码处理
+            raise
 
         seleniumLogger = logging.getLogger("seleniumwire")
         seleniumLogger.setLevel(logging.ERROR)

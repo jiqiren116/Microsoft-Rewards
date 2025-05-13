@@ -67,17 +67,11 @@ class Searches:
         return default_search_words
 
     def bingSearches(self, isMobile: bool, numberOfSearches: int, pointsCounter: int = 0):
-        # 因为赚取从第三次搜索开始，因此要比剩余搜索次数多几次
-        # 这里+3导致循环退出有问题
-        # numberOfSearches += 3
-
         logging.info(
             "[BING] "
             + f"Starting {self.browser.browserType.capitalize()} Edge Bing searches... "
             + f"剩余搜索次数为: {numberOfSearches}"
         )
-
-        temp_numberOfSearches = numberOfSearches  # 临时变量，用于记录剩余搜索次数，方便循环时退出
 
         search_terms = self.getHotSearch()
         # 统计search_terms中的元素个数，然后跟numberOfSearches作比较，打印log
@@ -91,21 +85,19 @@ class Searches:
         else:
             logging.info(f"[BING] 获取到的搜索词个数大于等于需要搜索的个数，满足需求")
 
+        # 仅截取前numberOfSearches个元素
+        search_terms = search_terms[:numberOfSearches]
+
         i = 0
         for word in search_terms:
-            # 如果剩余搜索次数小于等于0，退出循环
-            if temp_numberOfSearches <= 0:
-                logging.info(f"[BING] 剩余搜索次数为0，退出循环")
-                break
-            
             points = self.bingSearch(word)
 
             i += 1
+            logging.info(f"[BING] {i}/{numberOfSearches}, 搜索词：[{word}]")
             # 每隔4次搜索暂停10分钟
             if i % INTERVAL_NUMBER == 0:
                 logging.info(f"[BING] 已搜索 {i} 次，暂停 {PAUSE_TIME} 分钟...")
                 time.sleep(PAUSE_TIME * 60)
-            logging.info(f"[BING] {i}/{numberOfSearches}, 搜索词：{word}")
             if points <= pointsCounter:
                 relatedTerms = self.getRelatedTerms(word)
                 logging.info(f"[BING] 搜索词：{word} 搜索失败，当前积分为：{points} 未发生变化，尝试获取相关搜索词, 相关搜索词为：{relatedTerms}")
@@ -114,7 +106,6 @@ class Searches:
                     time.sleep(3 * 60)
                     if not points <= pointsCounter:
                         logging.info(f"[BING] 相关搜索词：{term} 搜索成功，搜索前的积分：{pointsCounter}，搜索后的积分：{points}")
-                        temp_numberOfSearches -= 1  # 减少剩余搜索次数
                         break
                     else:
                         logging.info(f"[BING] 相关搜索词：{term} 搜索失败")
@@ -123,8 +114,7 @@ class Searches:
                             logging.info(f"[BING] 相关搜索词搜索达到3次，退出循环")
                             break
             else:
-                temp_numberOfSearches -= 1  # 减少剩余搜索次数
-                logging.info(f"[BING] 搜索词：{word} 搜索成功, 搜索前的积分：{pointsCounter}, 搜索后的积分：{points}")
+                logging.info(f"[BING] 搜索词：[{word}] 搜索成功, 搜索前的积分：{pointsCounter}, 搜索后的积分：{points}")
             if points > 0:
                 pointsCounter = points
             else:

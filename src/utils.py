@@ -244,10 +244,17 @@ class Utils:
             remainingMobile = int((targetMobile - progressMobile) / searchPoints)
         return remainingDesktop, remainingMobile
 
-    def formatNumber(self, number, num_decimals=2):
-        return pylocale.format_string(
-            f"%10.{num_decimals}f", number, grouping=True
-        ).strip()
+    def formatNumber(self, number):
+        """
+        将输入的数字转换为不包含小数位的格式化字符串。
+
+        Args:
+            number (int or float): 输入的数字。
+
+        Returns:
+            str: 不包含小数位的格式化字符串。
+        """
+        return pylocale.format_string("%10d", int(number), grouping=True).strip()
 
     @staticmethod
     def getBrowserConfig(sessionPath: Path) -> dict:
