@@ -10,10 +10,14 @@ from src import Browser, DailySet, Login, MorePromotions, PunchCards, Searches
 from src.constants import VERSION
 from src.loggingColoredFormatter import ColoredFormatter
 from src.notifier import Notifier
+from src.utils import Utils
 
 POINTS_COUNTER = 0
 
 LOG_TAG = "[CMY]"
+
+# 全局变量声明
+config = None
 
 def setupConfig() -> dict:
     """
@@ -29,7 +33,8 @@ def setupConfig() -> dict:
             "driver_executable_path": "your driver path",
             "browser_executable_path": "your browser path",
             "add_visible_flag": True,
-            "pushplus_token": "your pushplus token"
+            "pushplus_token": "your pushplus token",
+            "target_point": 0
         }
         configPath.write_text(
             json.dumps(default_config, indent=4),
@@ -45,6 +50,7 @@ def setupConfig() -> dict:
     return loadedConfig
 
 def main():
+    global config
     setupLogging()
     logging.info(f"{LOG_TAG} setupLogging done")
     # 调用新函数设置配置
@@ -159,6 +165,7 @@ def setupAccounts() -> dict:
 
 
 def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
+    global config
     logging.info(
         f'********************{currentAccount.get("username", "")}********************'
     )
@@ -206,6 +213,12 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
         current_email = currentAccount.get("username", "")
 
         notifier.wechat(current_email, f"本次获得积分：{earnedPoints}，总积分：{havePoints}")
+
+        # 从配置文件中读取target_point,如果不存在或者为0，则不发送通知
+        if config is not None:
+            target_point = config.get("target_point", 0)
+            if target_point > 0 and int(havePoints) >= target_point:
+                notifier.wechat(current_email, f"已达到目标积分：{target_point}，可以兑换了！")
 
 if __name__ == "__main__":
     main()

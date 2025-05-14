@@ -1,6 +1,8 @@
 import requests
 from pathlib import Path
 import json
+import logging
+from src.utils import Utils
 
 MAX_LENGTHS = {
     "telegram": 4096,
@@ -15,10 +17,8 @@ class Notifier:
             for key, value in vars(args).items()
             if key in MAX_LENGTHS.keys() and value is not None
         }
-        # 读取配置文件
-        config_path = Path(__file__).parent.parent / "config.json"
-        with open(config_path, 'r', encoding='utf-8') as f:
-            self.config = json.load(f)
+        # 调用 Utils 类的静态方法读取配置文件
+        self.config = Utils.load_config()
 
     def send(self, message: str):
         for type in self.args:
@@ -42,6 +42,11 @@ class Notifier:
 
     def wechat(self, current_email, message):
         # 发送方法为get，格式为https://www.pushplus.plus/send?token=xxxx&title=XXX&content=XXX&template=html
-        pushplus_token = self.config["pushplus_token"]
+        # 使用 get 方法获取 pushplus_token，若键不存在则返回空字符串
+        pushplus_token = self.config.get("pushplus_token", "")
+        # 如果没有配置pushplus_token，则不发送
+        if not pushplus_token:
+            logging.warning("未配置pushplus_token，跳过发送微信消息")
+            return
         url = f"https://www.pushplus.plus/send?token={pushplus_token}&title=MS {current_email}&content={message}&template=html"
         requests.get(url)

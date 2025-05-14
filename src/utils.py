@@ -271,3 +271,17 @@ class Utils:
         configFile = sessionPath.joinpath("config.json")
         with open(configFile, "w") as f:
             json.dump(config, f)
+
+    @staticmethod
+    def load_config():
+        """
+        读取项目根目录下的 config.json 文件。
+
+        :return: 配置文件中的数据，如果文件不存在则返回空字典。
+        """
+        config_path = Path(__file__).parent.parent / "config.json"
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return {}
