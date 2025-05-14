@@ -92,16 +92,8 @@ class Browser:
             )
             logging.info(f"{LOG_TAG} webdriver.Chrome done")
         except SessionNotCreatedException as e:
+            logging.info(f"{LOG_TAG} 尝试删除sessions文件夹来解决问题，记得在任务管理器中把关于chrome的进程都关掉才能删除成功")
             logging.error(f"{LOG_TAG} Session creation failed: {e}")
-            # 定位 sessions 文件夹
-            sessions_dir = Path(__file__).parent.parent / "sessions"
-            if sessions_dir.exists() and sessions_dir.is_dir():
-                try:
-                    # 清空 sessions 文件夹
-                    shutil.rmtree(sessions_dir)
-                    logging.info(f"{LOG_TAG} Sessions folder cleared.")
-                except Exception as rm_error:
-                    logging.error(f"{LOG_TAG} Failed to clear sessions folder: {rm_error}")
             # 重新抛出异常，让上层代码处理
             raise
 
