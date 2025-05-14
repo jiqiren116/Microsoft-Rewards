@@ -154,7 +154,7 @@ def setupAccounts() -> dict:
         logging.warning(noAccountsNotice)
         exit()
     loadedAccounts = json.loads(accountPath.read_text(encoding="utf-8"))
-    random.shuffle(loadedAccounts)
+    # random.shuffle(loadedAccounts) # 怀疑这里打乱顺序会导致浏览器打开shibai1，因此注释
     return loadedAccounts
 
 
@@ -202,7 +202,10 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
             f"[POINTS] You are now at {havePoints} points !\n"
         )
 
-        notifier.wechat(f"本次获得积分：{earnedPoints}，总积分：{havePoints}")
+        # 获取当前的邮箱账号
+        current_email = currentAccount.get("username", "")
+
+        notifier.wechat(current_email, f"本次获得积分：{earnedPoints}，总积分：{havePoints}")
 
 if __name__ == "__main__":
     main()

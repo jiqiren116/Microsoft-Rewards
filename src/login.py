@@ -36,8 +36,13 @@ class Login:
                     logging.info(f"{LOG_TAG} '用户未登录，继续执行登录流程...'")
                     break
                 except Exception:  # pylint: disable=broad-except
+                    logging.info(f"{LOG_TAG} '未找到已登录元素或登录头部元素，继续尝试...'")
                     # 若既未找到已登录元素也未找到登录头部元素，尝试关闭所有弹窗
                     if self.utils.tryDismissAllMessages():
+                        # 刷新页面
+                        self.webdriver.refresh()
+                        # 等待10s
+                        time.sleep(10)
                         continue
         # 如果用户未登录，则执行登录流程
         if not alreadyLoggedIn:

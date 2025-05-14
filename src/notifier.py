@@ -40,8 +40,8 @@ class Notifier:
         data = {"username": "Microsoft Rewards Farmer", "content": message}
         requests.post(url, data=data)
 
-    def wechat(self, message):
+    def wechat(self, current_email, message):
         # 发送方法为get，格式为https://www.pushplus.plus/send?token=xxxx&title=XXX&content=XXX&template=html
         pushplus_token = self.config["pushplus_token"]
-        url = f"https://www.pushplus.plus/send?token={pushplus_token}&title=Microsoft rewards&content={message}&template=html"
+        url = f"https://www.pushplus.plus/send?token={pushplus_token}&title=MS {current_email}&content={message}&template=html"
         requests.get(url)
