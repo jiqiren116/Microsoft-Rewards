@@ -7,6 +7,8 @@ from datetime import date, timedelta
 import requests
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from src.browser import Browser
 
@@ -125,11 +127,14 @@ class Searches:
         return pointsCounter
 
     def bingSearch(self, word: str):
-        while True:
+        max_retries = 3  # 设置最大重试次数
+        retries = 0
+        while retries < max_retries:
             try:
                 self.webdriver.get("https://bing.com")
-                searchbar = self.browser.utils.waitUntilClickable(
-                    By.ID, "sb_form_q", timeToWait=40
+                # 等待搜索框元素可见
+                searchbar = WebDriverWait(self.webdriver, 40).until(
+                    EC.visibility_of_element_located((By.ID, "sb_form_q"))
                 )
                 searchbar.send_keys(word)
                 time.sleep(random.randint(3, 5))
@@ -137,6 +142,12 @@ class Searches:
                 time.sleep(random.randint(18, 30))  # 随机等待18-30秒
                 return self.browser.utils.getBingAccountPoints()
             except TimeoutException:
-                logging.error("[BING] " + "Timeout, retrying in 5 seconds...")
+                retries += 1
+                logging.error(f"[BING] Timeout, retrying {retries}/{max_retries} in 5 seconds...")
                 time.sleep(5)
-                continue
+            except Exception as e:  # 捕获其他异常
+                retries += 1
+                logging.error(f"[BING] An unexpected error occurred: {str(e)}, retrying {retries}/{max_retries} in 5 seconds...")
+                time.sleep(5)
+        logging.error(f"[BING] Failed after {max_retries} retries.")
+        return 0  # 重试失败后返回 0
