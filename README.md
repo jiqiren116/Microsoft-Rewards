@@ -94,3 +94,54 @@
 ## Future Features
 
 - GUI
+
+## windows如何进入python的venv环境
+
+在 Windows 系统中，若要进入 Python 的虚拟环境（venv），可按以下步骤操作：
+
+### 1. 开启命令提示符或 PowerShell
+
+你可以按下 Win+R 组合键，输入`cmd`或者`powershell`，随后按下回车键来打开命令行工具。
+
+### 2. 定位到虚拟环境所在目录
+
+借助`cd`命令，进入你创建虚拟环境的那个目录。
+
+```bash
+cd path\to\your\project  # 请替换成实际的项目路径
+```
+
+### 3. 激活虚拟环境
+
+#### 3.1 命令提示符（CMD）
+
+```bash
+your_venv\Scripts\activate.bat  # your_venv为虚拟环境的名称
+```
+
+#### 3.2 PowerShell
+
+```bash
+your_venv\Scripts\Activate.ps1  # your_venv为虚拟环境的名称
+```
+
+### 验证虚拟环境是否激活
+
+当虚拟环境成功激活后，命令行提示符最前方会显示虚拟环境的名称，类似下面这样：
+
+```bash
+(your_venv) C:\path\to\your\project>
+```
+
+### 退出虚拟环境
+
+若要退出当前的虚拟环境，在命令行中输入`deactivate`即可。
+
+```bash
+deactivate
+```
+
+### 补充说明
+
+- 要创建虚拟环境，可使用命令`python -m venv your_venv`。
+- 激活虚拟环境之后，安装的所有 Python 包都会被存放在该虚拟环境目录里，不会对系统全局的 Python 环境产生影响。
