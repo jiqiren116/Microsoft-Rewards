@@ -60,9 +60,14 @@ class Browser:
         """Perform actions to close the browser cleanly."""
         if self.webdriver:
             try:
+                logging.info(f"{LOG_TAG} Attempting to close the browser...")
                 self.webdriver.quit()
+                logging.info(f"{LOG_TAG} Browser closed successfully.")
             except OSError as e:
-                logging.error(f"{LOG_TAG} Error closing browser: {e}")
+                if e.winerror == 6:
+                    logging.warning(f"{LOG_TAG} Handle is invalid when closing the browser. The browser might have been closed already.")
+                else:
+                    logging.error(f"{LOG_TAG} Error closing browser: {e}")
             except Exception as general_e:
                 logging.error(f"{LOG_TAG} Unexpected error closing browser: {general_e}")
             finally:

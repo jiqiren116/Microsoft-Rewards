@@ -48,5 +48,5 @@ class Notifier:
         if not pushplus_token:
             logging.warning("未配置pushplus_token，跳过发送微信消息")
             return
-        url = f"https://www.pushplus.plus/send?token={pushplus_token}&title=MS {current_email}&content={message}&template=html"
+        url = f"https://www.pushplus.plus/send?token={pushplus_token}&title={current_email}&content={message}&template=html"
         requests.get(url)

@@ -73,6 +73,23 @@ class Login:
         self.utils.waitUntilClickable(By.CSS_SELECTOR, '[data-testid="primaryButton"]', 10)
         self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="primaryButton"]').click()
 
+        time.sleep(5)
+        # 找到所有data-testid="title"的元素
+        title_elements = self.webdriver.find_elements(By.CSS_SELECTOR, '[data-testid="title"]')
+        # 遍历所有data-testid="title"的元素,判断文本中是否包含"获取用于登录的代码"
+        for title_element in title_elements:
+            if "获取用于登录的代码" in title_element.text:
+                logging.info(f"[LOGIN] 登录有密码和邮箱两种")
+                try:
+                    # 使用 CSS 选择器结合 xpath 定位包含 "使用密码" 文本的按钮
+                    view_footer = self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="viewFooter"]')
+                    password_button = view_footer.find_element(By.XPATH, ".//span[contains(text(), '使用密码')]")
+                    if password_button.is_displayed() and password_button.is_enabled():
+                        password_button.click()
+                        logging.info("[LOGIN] Clicked '使用密码' button.")
+                except Exception as e:
+                    logging.error(f"[LOGIN] Failed to find or click '使用密码' button: {e}")
+
         try:
             self.enterPassword(self.browser.password)
         except Exception:  # pylint: disable=broad-except

@@ -106,7 +106,7 @@ class Searches:
                 for term in relatedTerms:
                     points = self.bingSearch(term)
                     time.sleep(3 * 60)
-                    if not points <= pointsCounter:
+                    if points > pointsCounter:
                         logging.info(f"[BING] 相关搜索词：{term} 搜索成功，搜索前的积分：{pointsCounter}，搜索后的积分：{points}")
                         break
                     else:

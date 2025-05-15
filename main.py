@@ -63,6 +63,7 @@ def main():
     notifier = Notifier(args)
     loadedAccounts = setupAccounts()
     logging.info(f"{LOG_TAG} setupAccounts done")
+    logging.info(f"{LOG_TAG} loadedAccounts: {loadedAccounts}")
     for currentAccount in loadedAccounts:
         try:
             executeBot(currentAccount, notifier, args)
