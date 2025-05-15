@@ -58,9 +58,15 @@ class Browser:
 
     def closeBrowser(self) -> None:
         """Perform actions to close the browser cleanly."""
-        # close web browser
-        with contextlib.suppress(Exception):
-            self.webdriver.quit()
+        if self.webdriver:
+            try:
+                self.webdriver.quit()
+            except OSError as e:
+                logging.error(f"{LOG_TAG} Error closing browser: {e}")
+            except Exception as general_e:
+                logging.error(f"{LOG_TAG} Unexpected error closing browser: {general_e}")
+            finally:
+                self.webdriver = None
 
     def browserSetup(self) -> WebDriver:
         options = webdriver.ChromeOptions()
@@ -85,7 +91,8 @@ class Browser:
             driver = webdriver.Chrome(
                 options=options,
                 seleniumwire_options=seleniumwireOptions,
-                user_data_dir=self.userDataDir.as_posix(),
+                # 注释user_data_dir原因，这里大概是跟读取session文件夹有关，因为总是会遇到关于session有关的报错，因此注释
+                # user_data_dir=self.userDataDir.as_posix(),
                 # 从配置文件中获取路径
                 driver_executable_path=self.config["driver_executable_path"],
                 browser_executable_path=self.config["browser_executable_path"],

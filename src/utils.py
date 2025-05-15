@@ -131,6 +131,10 @@ class Utils:
         return str(t)
 
     def getDashboardData(self) -> dict:
+        # 在获取dashboard时必须确保页面已经在rewards界面，否则会报错。在执行每日活动时是正常的，但是在搜索时是不在reward界面，因此改为每次获取dashboard时都先跳转到reward界面
+        self.goHome()
+        # 等到8s
+        time.sleep(8)
         return self.webdriver.execute_script("return dashboard")
 
     def getBingInfo(self):
