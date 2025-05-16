@@ -27,6 +27,7 @@ class Login:
                 )
                 # 若找到元素，说明用户已登录，更新状态并跳出循环
                 alreadyLoggedIn = True
+                logging.info(f"用户已登录，跳过登录流程...")
                 break
             except Exception:  # pylint: disable=broad-except
                 try:
@@ -74,9 +75,10 @@ class Login:
         self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="primaryButton"]').click()
 
         time.sleep(5)
+        # 尝试跳过 [获取用于登录的代码] 选择框
         # 找到所有data-testid="title"的元素
         title_elements = self.webdriver.find_elements(By.CSS_SELECTOR, '[data-testid="title"]')
-        # 遍历所有data-testid="title"的元素,判断文本中是否包含"获取用于登录的代码"
+        # 遍历所有data-testid="title"的元素,判断文本中是否包含"获取用于登录的代码",尝试跳过
         for title_element in title_elements:
             if "获取用于登录的代码" in title_element.text:
                 logging.info(f"[LOGIN] 登录有密码和邮箱两种")
@@ -92,6 +94,22 @@ class Login:
 
         try:
             self.enterPassword(self.browser.password)
+
+            # 尝试跳过输入密码后出现的 [使用人脸、指纹或 PIN 更快地登录] 选择框
+            # 找到所有data-testid="title"的元素
+            title_elements = self.webdriver.find_elements(By.CSS_SELECTOR, '[data-testid="title"]')
+            # 遍历所有data-testid="title"的元素,判断文本中是否包含"获取用于登录的代码",尝试跳过
+            for title_element in title_elements:
+                if "使用人脸、指纹或 PIN 更快地登录" in title_element.text:
+                    logging.info(f"[LOGIN] 使用人脸、指纹或 PIN 更快地登录 选择框出现")
+                    try:
+                        # 找到data-testid="secondaryButton"的元素并点击它, 这是跳过按钮
+                        self.utils.waitUntilClickable(By.CSS_SELECTOR, '[data-testid="secondaryButton"]', 10)
+                        self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="secondaryButton"]').click()
+                        time.sleep(10)
+                        logging.info("[LOGIN] Clicked '跳过' button.")
+                    except Exception as e:
+                        logging.error(f"[LOGIN] Failed to find or click '跳过' button: {e}")
         except Exception:  # pylint: disable=broad-except
             logging.error("[LOGIN] " + "2FA required !")
             with contextlib.suppress(Exception):

@@ -62,17 +62,16 @@ class Searches:
                     return search_words # 返回搜索词列表
             else: # 如果请求失败
                 current_source_index += 1 # 切换到下一个搜索词来源
-                continue # 跳过当前循环，继续下一次循环
         
         # 如果所有搜索词来源都失败，则返回默认搜索词
         logging.info(f"{LOG_TAG} 获取热门搜索词失败，使用默认搜索词！")
         return default_search_words
 
-    def bingSearches(self, isMobile: bool, numberOfSearches: int, pointsCounter: int = 0):
+    def bingSearches(self, isMobile: bool, currentAccount: str, numberOfSearches: int, pointsCounter: int = 0):
         logging.info(
             "[BING] "
-            + f"Starting {self.browser.browserType.capitalize()} Edge Bing searches... "
-            + f"剩余搜索次数为: {numberOfSearches}"
+            + f"===== Starting [{currentAccount}] [{self.browser.browserType.capitalize()}] Edge Bing searches... "
+            + f"剩余搜索次数为: {numberOfSearches} ====="
         )
 
         search_terms = self.getHotSearch()
@@ -130,6 +129,12 @@ class Searches:
                 remainingSearches,
                 remainingSearchesM,
             ) = self.browser.utils.getRemainingSearches() # TODO: 这里总是报错说dashboard找不到
+
+            if (isMobile == True and remainingSearchesM == 0) or (isMobile == False and remainingSearches == 0):
+                logging.info(
+                    f"[BING] 在 [{currentAccount}] [{self.browser.browserType.capitalize()}] 中，剩余的搜索也已经完成，最后获得的总积分为：{pointsCounter}"
+                )
+                break
             if isMobile == True:
                 logging.info(
                     f"[BING] 在 手机端 中，剩余的搜索次数为：{remainingSearchesM}"
@@ -139,24 +144,25 @@ class Searches:
                     f"[BING] 在 电脑端 中，剩余的搜索次数为：{remainingSearches}"
                 )
             
-            if (isMobile == True and remainingSearchesM == 0) or (isMobile == False and remainingSearches == 0):
-                logging.info(
-                    f"[BING] 在 isMobile={isMobile} 中，剩余的搜索也已经完成，最后获得的总积分为：{pointsCounter}"
-                )
-                break
             # 如果search_terms列表为空，则重新获取
             if not search_terms:
                 logging.info(f"[BING] search_terms列表为空，重新获取")
                 search_terms = self.getHotSearch()
             search_word = search_terms.pop(0)  # 从列表中取出第一个元素作为搜索词
             points = self.bingSearch(search_word)
-            time.sleep(random.randint(5, 10) * 60)  # 随机等待5-10分钟
+            # 正确更新总积分
+            if points > pointsCounter:
+                pointsCounter = points
+                logging.info(f"[BING] IN WHILE搜索词：[{search_word}] 搜索成功, 搜索前的积分：{pointsCounter}, 搜索后的积分：{points}")
+            else:
+                logging.info(f"[BING] IN WHILE搜索词：[{search_word}] 搜索失败")
+            time.sleep(5 * 60)
             retries += 1
         else:
             logging.error(f"[BING] 达到最大重试次数 {max_retries}，退出循环")
         
         logging.info(
-            f"[BING] Finished {self.browser.browserType.capitalize()} Edge Bing searches !"
+            f"[BING] ===== Finished [{currentAccount}] [{self.browser.browserType.capitalize()}] Edge Bing searches ! ====="
         )
         return pointsCounter
 

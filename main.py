@@ -167,8 +167,11 @@ def setupAccounts() -> dict:
 
 def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
     global config
+    # 获取当前的邮箱账号
+    current_email = currentAccount.get("username", "")
+
     logging.info(
-        f'********************{currentAccount.get("username", "")}********************'
+        f'********************{current_email}********************'
     )
     with Browser(mobile=False, account=currentAccount, args=args) as desktopBrowser:
         accountPointsCounter = Login(desktopBrowser).login()
@@ -187,6 +190,7 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
         if remainingSearches != 0:
             accountPointsCounter = Searches(desktopBrowser).bingSearches(
                 False,
+                current_email,
                 remainingSearches
             )
 
@@ -198,6 +202,7 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
                 accountPointsCounter = Login(mobileBrowser).login()
                 accountPointsCounter = Searches(mobileBrowser).bingSearches(
                     True,
+                    current_email,
                     remainingSearchesM
                 )
 
@@ -210,8 +215,6 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
             f"[POINTS] You are now at {havePoints} points !\n"
         )
 
-        # 获取当前的邮箱账号
-        current_email = currentAccount.get("username", "")
 
         notifier.wechat(current_email, f"本次获得积分：{earnedPoints}，总积分：{havePoints}")
 
