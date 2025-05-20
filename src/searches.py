@@ -13,7 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from src.browser import Browser
 
 LOG_TAG = "[CMY]"
-PAUSE_TIME = 15  # 每隔5次搜索的暂停时间，单位为 分钟
+PAUSE_TIME = 10  # 每隔5次搜索的暂停时间，单位为 分钟
 INTERVAL_NUMBER = 4  # 每隔多少次搜索暂停一次
 
 class Searches:
@@ -75,92 +75,55 @@ class Searches:
         )
 
         search_terms = self.getHotSearch()
-        # 统计search_terms中的元素个数，然后跟numberOfSearches作比较，打印log
-        logging.info(f"[BING] 获取到的搜索词个数为：{len(search_terms)}, 需要搜索的个数为：{numberOfSearches}")
 
         if len(search_terms) < numberOfSearches:
             logging.info(f"[BING] 获取到的搜索词个数小于需要搜索的个数，不满足需求!!!!!!!!!!!!!!!!!!!!!!!!")
             # 如果不够就再加上一段
             search_terms += self.getHotSearch()
-
         else:
-            logging.info(f"[BING] 获取到的搜索词个数大于等于需要搜索的个数，满足需求")
-
-        # 仅截取前numberOfSearches个元素
-        search_terms = search_terms[:numberOfSearches]
+            logging.info(f"[BING] 获取到的搜索词个数为：{len(search_terms)},大于等于需要搜索的个数：{numberOfSearches}，满足需求")
 
         i = 0
-        for word in search_terms:
-            points = self.bingSearch(word)
-
-            i += 1
-            logging.info(f"[BING] {i}/{numberOfSearches}, 搜索词：[{word}]")
+        while True:
             # 每隔4次搜索暂停10分钟
-            if i % INTERVAL_NUMBER == 0:
-                logging.info(f"[BING] 已搜索 {i} 次，暂停 {PAUSE_TIME} 分钟...")
+            if i != 0 and i % INTERVAL_NUMBER == 0:
+                (
+                    remainingSearches,
+                    remainingSearchesM,
+                ) = self.browser.utils.getRemainingSearches() 
+
+                if (isMobile == True and remainingSearchesM == 0) or (isMobile == False and remainingSearches == 0):
+                    logging.info(
+                        f"[BING] 在 [{currentAccount}] [{self.browser.browserType.capitalize()}] 中，剩余的搜索也已经完成，最后获得的总积分为：{pointsCounter}"
+                    )
+                    break
+                if isMobile == True:
+                    logging.info(
+                        f"[BING] 在 [{self.browser.browserType.capitalize()}] 中，剩余的搜索次数为：{remainingSearchesM}"
+                    )
+                else:
+                    logging.info(
+                        f"[BING] 在 [{self.browser.browserType.capitalize()}] 中，剩余的搜索次数为：{remainingSearches}"
+                    )
                 time.sleep(PAUSE_TIME * 60)
-            if points <= pointsCounter:
-                relatedTerms = self.getRelatedTerms(word)[:2]
-                logging.info(f"[BING] 搜索词：{word} 搜索失败，当前积分为：{points} 未发生变化，尝试获取相关搜索词, 相关搜索词为：{relatedTerms}")
-                for term in relatedTerms:
-                    points = self.bingSearch(term)
-                    time.sleep(3 * 60)
-                    if points > pointsCounter:
-                        logging.info(f"[BING] 相关搜索词：{term} 搜索成功，搜索前的积分：{pointsCounter}，搜索后的积分：{points}")
-                        break
-                    else:
-                        logging.info(f"[BING] 相关搜索词：{term} 搜索失败")
-
-            else:
-                logging.info(f"[BING] 搜索词：[{word}] 搜索成功, 搜索前的积分：{pointsCounter}, 搜索后的积分：{points}")
-            if points > 0:
-                pointsCounter = points
-            else:
-                break
-
-        # 检查是否还有剩余搜索次数，如果有则继续搜索，否则退出循环
-        # 之前for循环中不调用getRemainingSearches是我害怕频繁调用，导致被封IP，还是时间的综合考虑，经过多次实践，在之前的for循环中会获取大多数积分，只有少部分未获取到
-        # 重新获取search_terms
-        search_terms = self.getHotSearch()
-        max_retries = 15  # 设置最大重试次数
-        retries = 0
-        while retries < max_retries:
-            (
-                remainingSearches,
-                remainingSearchesM,
-            ) = self.browser.utils.getRemainingSearches() # TODO: 这里总是报错说dashboard找不到
-
-            if (isMobile == True and remainingSearchesM == 0) or (isMobile == False and remainingSearches == 0):
-                logging.info(
-                    f"[BING] 在 [{currentAccount}] [{self.browser.browserType.capitalize()}] 中，剩余的搜索也已经完成，最后获得的总积分为：{pointsCounter}"
-                )
-                break
-            if isMobile == True:
-                logging.info(
-                    f"[BING] 在 手机端 中，剩余的搜索次数为：{remainingSearchesM}"
-                )
-            else:
-                logging.info(
-                    f"[BING] 在 电脑端 中，剩余的搜索次数为：{remainingSearches}"
-                )
             
             # 如果search_terms列表为空，则重新获取
             if not search_terms:
                 logging.info(f"[BING] search_terms列表为空，重新获取")
                 search_terms = self.getHotSearch()
+                time.sleep(5) # 避免请求过快，导致请求失败
             search_word = search_terms.pop(0)  # 从列表中取出第一个元素作为搜索词
             points = self.bingSearch(search_word)
+            time.sleep(random.randint(20, 30))  # 随机等待20-30秒
+
+            i += 1
             # 正确更新总积分
             if points > pointsCounter:
+                logging.info(f"[BING] 第{i}次搜索-搜索成功，搜索词：[{search_word}] , \n搜索前积分：{pointsCounter}, 搜索后积分：{points}")
                 pointsCounter = points
-                logging.info(f"[BING] IN WHILE搜索词：[{search_word}] 搜索成功, 搜索前的积分：{pointsCounter}, 搜索后的积分：{points}")
             else:
-                logging.info(f"[BING] IN WHILE搜索词：[{search_word}] 搜索失败")
-            time.sleep(5 * 60)
-            retries += 1
-        else:
-            logging.error(f"[BING] 达到最大重试次数 {max_retries}，退出循环")
-        
+                logging.info(f"[BING] 第{i}次搜索-搜索失败，搜索词：[{search_word}] ")
+
         logging.info(
             f"[BING] ===== Finished [{currentAccount}] [{self.browser.browserType.capitalize()}] Edge Bing searches ! ====="
         )
@@ -179,7 +142,7 @@ class Searches:
                 searchbar.send_keys(word)
                 time.sleep(random.randint(3, 5))
                 searchbar.submit()
-                time.sleep(random.randint(18, 30))  # 随机等待18-30秒
+                time.sleep(random.randint(20, 30))  
                 return self.browser.utils.getBingAccountPoints()
             except TimeoutException:
                 retries += 1

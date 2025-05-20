@@ -49,4 +49,8 @@ class Notifier:
             logging.warning("未配置pushplus_token，跳过发送微信消息")
             return
         url = f"https://www.pushplus.plus/send?token={pushplus_token}&title={current_email}&content={message}&template=html"
-        requests.get(url)
+        # 根据requests.get(url)的返回值判断是否发送成功，若返回值为200，则发送成功，否则发送失败
+        if requests.get(url).status_code == 200:
+            logging.info("发送微信消息成功")
+        else:
+            logging.error("发送微信消息失败")
