@@ -161,7 +161,7 @@ def setupAccounts() -> dict:
         logging.warning(noAccountsNotice)
         exit()
     loadedAccounts = json.loads(accountPath.read_text(encoding="utf-8"))
-    # random.shuffle(loadedAccounts) # 怀疑这里打乱顺序会导致浏览器打开shibai1，因此注释
+    random.shuffle(loadedAccounts) # 怀疑这里打乱顺序会导致浏览器打开失败，因此注释
     return loadedAccounts
 
 
@@ -189,7 +189,6 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
         ) = desktopBrowser.utils.getRemainingSearches()
         if remainingSearches != 0:
             accountPointsCounter = Searches(desktopBrowser).bingSearches(
-                False,
                 current_email,
                 remainingSearches
             )
@@ -201,7 +200,6 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
             ) as mobileBrowser:
                 accountPointsCounter = Login(mobileBrowser).login()
                 accountPointsCounter = Searches(mobileBrowser).bingSearches(
-                    True,
                     current_email,
                     remainingSearchesM
                 )

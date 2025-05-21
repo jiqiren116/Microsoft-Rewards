@@ -67,10 +67,11 @@ class Searches:
         logging.info(f"{LOG_TAG} 获取热门搜索词失败，使用默认搜索词！")
         return default_search_words
 
-    def bingSearches(self, isMobile: bool, currentAccount: str, numberOfSearches: int, pointsCounter: int = 0):
+    def bingSearches(self, currentAccount: str, numberOfSearches: int, pointsCounter: int = 0):
+        DesktopOrMobile = self.browser.browserType.capitalize()
         logging.info(
             "[BING] "
-            + f"===== Starting [{currentAccount}] [{self.browser.browserType.capitalize()}] Edge Bing searches... "
+            + f"===== Starting [{currentAccount}] [{DesktopOrMobile}] Edge Bing searches... "
             + f"剩余搜索次数为: {numberOfSearches} ====="
         )
 
@@ -92,18 +93,18 @@ class Searches:
                     remainingSearchesM,
                 ) = self.browser.utils.getRemainingSearches() 
 
-                if (isMobile == True and remainingSearchesM == 0) or (isMobile == False and remainingSearches == 0):
+                if (DesktopOrMobile == 'Mobile' and remainingSearchesM == 0) or (DesktopOrMobile == 'Desktop' and remainingSearches == 0):
                     logging.info(
-                        f"[BING] 在 [{currentAccount}] [{self.browser.browserType.capitalize()}] 中，剩余的搜索也已经完成，最后获得的总积分为：{pointsCounter}"
+                        f"[BING] 在 [{currentAccount}] [{DesktopOrMobile}] 中，剩余的搜索也已经完成，最后获得的总积分为：{pointsCounter}"
                     )
                     break
-                if isMobile == True:
+                if DesktopOrMobile == 'Mobile':
                     logging.info(
-                        f"[BING] 在 [{self.browser.browserType.capitalize()}] 中，剩余的搜索次数为：{remainingSearchesM}"
+                        f"[BING] 在 [{DesktopOrMobile}] 中，剩余的搜索次数为：{remainingSearchesM}"
                     )
                 else:
                     logging.info(
-                        f"[BING] 在 [{self.browser.browserType.capitalize()}] 中，剩余的搜索次数为：{remainingSearches}"
+                        f"[BING] 在 [{DesktopOrMobile}] 中，剩余的搜索次数为：{remainingSearches}"
                     )
                 time.sleep(PAUSE_TIME * 60)
             
@@ -125,7 +126,7 @@ class Searches:
                 logging.info(f"[BING] 第{i}次搜索-搜索失败，搜索词：[{search_word}] ")
 
         logging.info(
-            f"[BING] ===== Finished [{currentAccount}] [{self.browser.browserType.capitalize()}] Edge Bing searches ! ====="
+            f"[BING] ===== Finished [{currentAccount}] [{DesktopOrMobile}] Edge Bing searches ! ====="
         )
         return pointsCounter
 

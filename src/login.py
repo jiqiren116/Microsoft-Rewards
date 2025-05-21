@@ -54,6 +54,7 @@ class Login:
         logging.info("[LOGIN] " + "Logged-in !")
 
         self.utils.goHome()
+        logging.info("[LOGIN] " + "after goHome in login")
         points = self.utils.getAccountPoints()
         logging.info(
             f"[POINTS] You have {self.utils.formatNumber(points)} points on your account!"
@@ -94,6 +95,7 @@ class Login:
 
         try:
             self.enterPassword(self.browser.password)
+            logging.info("[LOGIN] You hava entered your password!")
 
             # 尝试跳过输入密码后出现的 [使用人脸、指纹或 PIN 更快地登录] 选择框
             # 找到所有data-testid="title"的元素
@@ -120,13 +122,22 @@ class Login:
             logging.info("[LOGIN] Press enter when confirmed...")
             input()
 
+        matrix = 0 #避免死循环
         while not (
             urllib.parse.urlparse(self.webdriver.current_url).path == "/"
             and urllib.parse.urlparse(self.webdriver.current_url).hostname
             == "account.microsoft.com"
         ):
+            logging.info(f"[LOGIN] 第{matrix}次：is in account.microsoft.com, waiting...")
             self.utils.tryDismissAllMessages()
-            time.sleep(1)
+            time.sleep(5)
+
+            matrix += 1
+            if matrix > 5:
+                logging.error("[LOGIN] " + "matrix > 10, exiting...")
+                break
+        
+        logging.info("[LOGIN] " + "after is in account.microsoft.com")
 
         self.utils.waitUntilVisible(
             By.CSS_SELECTOR, 'html[data-role-name="MeePortal"]', 10
