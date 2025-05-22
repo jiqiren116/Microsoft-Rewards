@@ -145,7 +145,9 @@ class Login:
 
     def enterPassword(self, password):
         self.utils.waitUntilClickable(By.NAME, "passwd", 10)
+        logging.info("[LOGIN] " + "waitUntilClickable(By.NAME, 'passwd', 10)")
         self.utils.waitUntilClickable(By.CSS_SELECTOR, '[data-testid="primaryButton"]', 10)
+        logging.info("[LOGIN] " + "waitUntilClickable(By.CSS_SELECTOR, '[data-testid=\"primaryButton\"]', 10)")
         # browser.webdriver.find_element(By.NAME, "passwd").send_keys(password)
         # If password contains special characters like " ' or \, send_keys() will not work
         password = password.replace("\\", "\\\\").replace('"', '\\"')
@@ -154,6 +156,7 @@ class Login:
 
         logging.info("[LOGIN] " + "Writing password...")
         self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="primaryButton"]').click()
+        logging.info("[LOGIN] " + "Clicking login button...")
         time.sleep(5)
 
     def checkBingLogin(self):

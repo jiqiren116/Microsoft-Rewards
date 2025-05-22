@@ -106,6 +106,9 @@ class Searches:
                     logging.info(
                         f"[BING] 在 [{DesktopOrMobile}] 中，剩余的搜索次数为：{remainingSearches}"
                     )
+                logging.info(
+                    f"[BING] 暂停{PAUSE_TIME}分钟"
+                )
                 time.sleep(PAUSE_TIME * 60)
             
             # 如果search_terms列表为空，则重新获取
