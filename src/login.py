@@ -130,9 +130,18 @@ class Login:
         ):
             logging.info(f"[LOGIN] 第{matrix}次：is in account.microsoft.com, waiting...")
             self.utils.tryDismissAllMessages()
-            time.sleep(5)
+            time.sleep(15)
 
             matrix += 1
+            # 尝试跳转到网页 https://account.microsoft.com/
+            if self.webdriver is not None:
+                logging.info("尝试跳转到account.microsoft.com")
+                self.webdriver.get("https://account.microsoft.com/")
+            else:
+                logging.error("[LOGIN] WebDriver is None, cannot proceed to navigate.")
+                raise RuntimeError("WebDriver is not initialized.")
+            
+
             if matrix > 5:
                 logging.error("[LOGIN] " + "matrix > 10, exiting...")
                 break
