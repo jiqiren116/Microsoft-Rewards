@@ -137,6 +137,7 @@ class Login:
             if self.webdriver is not None:
                 logging.info("尝试跳转到account.microsoft.com")
                 self.webdriver.get("https://account.microsoft.com/")
+                time.sleep(15)
             else:
                 logging.error("[LOGIN] WebDriver is None, cannot proceed to navigate.")
                 raise RuntimeError("WebDriver is not initialized.")
