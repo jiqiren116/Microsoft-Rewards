@@ -69,6 +69,7 @@ def main():
             executeBot(currentAccount, notifier, args)
         except Exception as e:
             logging.exception(f"{e.__class__.__name__}: {e}")
+    notifier.wechat("执行完成", f"账号全部执行完成")
 
 
 def setupLogging():

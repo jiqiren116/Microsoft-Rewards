@@ -13,7 +13,7 @@ LOG_FILE="$LOG_DIR/$(date +'%Y%m%d_%H%M%S').log"
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 
 # 虚拟环境激活脚本的相对路径，假设虚拟环境在当前目录下的 .venv 文件夹
-VENV_ACTIVATE_PATH="$SCRIPT_DIR/.venv/bin/activate"
+VENV_ACTIVATE_PATH="$SCRIPT_DIR/venv/bin/activate"
 
 # Python 脚本的相对路径，假设 Python 脚本在当前目录下
 SCRIPT_PATH="$SCRIPT_DIR/main.py"

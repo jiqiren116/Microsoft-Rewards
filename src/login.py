@@ -143,7 +143,7 @@ class Login:
                 raise RuntimeError("WebDriver is not initialized.")
             
 
-            if matrix > 5:
+            if matrix > 10:
                 logging.error("[LOGIN] " + "matrix > 10, exiting...")
                 break
         
