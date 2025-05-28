@@ -123,10 +123,10 @@ class Searches:
             i += 1
             # 正确更新总积分
             if points > pointsCounter:
-                logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索成功，搜索词:[{search_word}] \n搜索词:[{search_word}] 搜索前积分:{pointsCounter}, 搜索后积分:{points}")
+                logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索 SUCCESS，搜索词:[{search_word}] \n搜索词:[{search_word}] 搜索前积分:{pointsCounter}, 搜索后积分:{points}\n")
                 pointsCounter = points
             else:
-                logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索失败，搜索词:[{search_word}] ")
+                logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索 FAIL，搜索词:[{search_word}] \n")
 
         logging.info(
             f"[BING] ===== Finished [{currentAccount}] [{DesktopOrMobile}] Edge Bing searches ! ====="
