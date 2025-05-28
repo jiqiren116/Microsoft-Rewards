@@ -78,11 +78,11 @@ class Searches:
         search_terms = self.getHotSearch()
 
         if len(search_terms) < numberOfSearches:
-            logging.info(f"[BING] 获取到的搜索词个数小于需要搜索的个数，不满足需求!!!!!!!!!!!!!!!!!!!!!!!!")
+            logging.info(f"[BING][{DesktopOrMobile}]获取到的搜索词个数小于需要搜索的个数，不满足需求!!!!!!!!!!!!!!!!!!!!!!!!")
             # 如果不够就再加上一段
             search_terms += self.getHotSearch()
         else:
-            logging.info(f"[BING] 获取到的搜索词个数为：{len(search_terms)},大于等于需要搜索的个数：{numberOfSearches}，满足需求")
+            logging.info(f"[BING][{DesktopOrMobile}]获取到的搜索词个数为:{len(search_terms)},大于等于需要搜索的个数:{numberOfSearches}，满足需求")
 
         i = 0
         while True:
@@ -95,38 +95,38 @@ class Searches:
 
                 if (DesktopOrMobile == 'Mobile' and remainingSearchesM == 0) or (DesktopOrMobile == 'Desktop' and remainingSearches == 0):
                     logging.info(
-                        f"[BING] 在 [{currentAccount}] [{DesktopOrMobile}] 中，剩余的搜索也已经完成，最后获得的总积分为：{pointsCounter}"
+                        f"[BING] [{currentAccount}] [{DesktopOrMobile}] 中，剩余搜索已完成，总积分为:{pointsCounter}"
                     )
                     break
                 if DesktopOrMobile == 'Mobile':
                     logging.info(
-                        f"[BING] 在 [{DesktopOrMobile}] 中，剩余的搜索次数为：{remainingSearchesM}"
+                        f"[BING] [{DesktopOrMobile}]中，剩余搜索次数为:{remainingSearchesM}"
                     )
                 else:
                     logging.info(
-                        f"[BING] 在 [{DesktopOrMobile}] 中，剩余的搜索次数为：{remainingSearches}"
+                        f"[BING] [{DesktopOrMobile}]中，剩余搜索次数为:{remainingSearches}"
                     )
                 logging.info(
-                    f"[BING] 暂停{PAUSE_TIME}分钟"
+                    f"[BING][{DesktopOrMobile}] 暂停{PAUSE_TIME}分钟"
                 )
                 time.sleep(PAUSE_TIME * 60)
             
             # 如果search_terms列表为空，则重新获取
             if not search_terms:
-                logging.info(f"[BING] search_terms列表为空，重新获取")
+                logging.info(f"[BING][{DesktopOrMobile}] search_terms列表为空，重新获取")
                 search_terms = self.getHotSearch()
                 time.sleep(5) # 避免请求过快，导致请求失败
             search_word = search_terms.pop(0)  # 从列表中取出第一个元素作为搜索词
             points = self.bingSearch(search_word)
-            time.sleep(random.randint(20, 30))  # 随机等待20-30秒
+            time.sleep(random.randint(15, 30))  # 随机等待20-30秒
 
             i += 1
             # 正确更新总积分
             if points > pointsCounter:
-                logging.info(f"[BING] 第{i}次搜索-搜索成功，搜索词：[{search_word}] , \n搜索前积分：{pointsCounter}, 搜索后积分：{points}")
+                logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索成功，搜索词:[{search_word}] \n搜索词:[{search_word}] 搜索前积分:{pointsCounter}, 搜索后积分:{points}")
                 pointsCounter = points
             else:
-                logging.info(f"[BING] 第{i}次搜索-搜索失败，搜索词：[{search_word}] ")
+                logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索失败，搜索词:[{search_word}] ")
 
         logging.info(
             f"[BING] ===== Finished [{currentAccount}] [{DesktopOrMobile}] Edge Bing searches ! ====="
@@ -146,7 +146,7 @@ class Searches:
                 searchbar.send_keys(word)
                 time.sleep(random.randint(3, 5))
                 searchbar.submit()
-                time.sleep(random.randint(20, 30))  
+                time.sleep(random.randint(15, 30))  
                 return self.browser.utils.getBingAccountPoints()
             except TimeoutException:
                 retries += 1

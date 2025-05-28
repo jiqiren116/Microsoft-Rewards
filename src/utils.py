@@ -238,7 +238,7 @@ class Utils:
 
         for item in counters['pcSearch']:
             targetDesktop += item.get('pointProgressMax', 0)
-        logging.info(f"[BING] targetDesktop: {targetDesktop}, progressDesktop: {progressDesktop}")
+        # logging.info(f"[BING] targetDesktop: {targetDesktop}, progressDesktop: {progressDesktop}")
 
         remainingDesktop = int((targetDesktop - progressDesktop) / searchPoints)
         remainingMobile = 0

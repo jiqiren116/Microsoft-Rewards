@@ -5,6 +5,7 @@ import logging.handlers as handlers
 import random
 import sys
 from pathlib import Path
+import threading  
 
 from src import Browser, DailySet, Login, MorePromotions, PunchCards, Searches
 from src.constants import VERSION
@@ -28,13 +29,14 @@ def setupConfig() -> dict:
     """
     configPath = Path(__file__).resolve().parent / "config.json"
     if not configPath.exists():
-        # 创建默认配置文件 add_visible_flag为true表示默认开启-v参数，代表浏览器可见
+        # 创建默认配置文件 add_visible_flag为false表示默认不开启-v参数，浏览器无头模式，代表浏览器不可见
+        # target_point为17925，表示目标积分为17925，17925是100元天猫卡
         default_config = {
             "driver_executable_path": "your driver path",
             "browser_executable_path": "your browser path",
-            "add_visible_flag": True,
+            "add_visible_flag": False,
             "pushplus_token": "your pushplus token",
-            "target_point": 0
+            "target_point": 17925
         }
         configPath.write_text(
             json.dumps(default_config, indent=4),
@@ -188,40 +190,72 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
             remainingSearches,
             remainingSearchesM,
         ) = desktopBrowser.utils.getRemainingSearches()
-        if remainingSearches != 0:
-            accountPointsCounter = Searches(desktopBrowser).bingSearches(
-                current_email,
-                remainingSearches
-            )
 
-        if remainingSearchesM != 0:
-            desktopBrowser.closeBrowser()
-            with Browser(
-                mobile=True, account=currentAccount, args=args
-            ) as mobileBrowser:
-                accountPointsCounter = Login(mobileBrowser).login()
-                accountPointsCounter = Searches(mobileBrowser).bingSearches(
-                    current_email,
-                    remainingSearchesM
-                )
+        # 创建线程锁
+        lock = threading.Lock()
 
-        earnedPoints = desktopBrowser.utils.formatNumber(accountPointsCounter - startingPoints)
-        havePoints = desktopBrowser.utils.formatNumber(accountPointsCounter)
-        logging.info(
-            f"[POINTS] You have earned {earnedPoints} points today !"
-        )
-        logging.info(
-            f"[POINTS] You are now at {havePoints} points !\n"
-        )
+        def desktop_search():
+            nonlocal accountPointsCounter
+            try:
+                logging.info("[BING] DESKTOP_SEARCH thread started")
+                if remainingSearches != 0:
+                    points = Searches(desktopBrowser).bingSearches(
+                        current_email,
+                        remainingSearches
+                    )
+                    logging.info("[BING] DESKTOP_SEARCH finished")
 
+                    with lock:
+                        accountPointsCounter = max(accountPointsCounter, points)
+            except Exception as e:
+                logging.exception(f"Desktop search failed: {e}")
 
-        notifier.wechat(current_email, f"本次获得积分：{earnedPoints}，总积分：{havePoints}")
+        def mobile_search():
+            nonlocal accountPointsCounter
+            try:
+                logging.info("[BING] MOBILE_SEARCH thread started")
+                if remainingSearchesM != 0:
+                    with Browser(
+                        mobile=True, account=currentAccount, args=args
+                    ) as mobileBrowser:
+                        Login(mobileBrowser).login()
+                        mobile_points = Searches(mobileBrowser).bingSearches(
+                            current_email,
+                            remainingSearchesM
+                        )
+                        logging.info("[BING] MOBILE_SEARCH finished")
+                        with lock:
+                            accountPointsCounter = max(accountPointsCounter, mobile_points)
+            except Exception as e:
+                logging.exception(f"Mobile search failed: {e}")
 
-        # 从配置文件中读取target_point,如果不存在或者为0，则不发送通知
-        if config is not None:
-            target_point = config.get("target_point", 0)
-            if target_point > 0 and int(havePoints) >= target_point:
-                notifier.wechat(current_email, f"已达到目标积分：{target_point}，可以兑换了！")
+        # 创建线程
+        desktop_thread = threading.Thread(target=desktop_search)
+        mobile_thread = threading.Thread(target=mobile_search)
+
+        # 启动线程
+        desktop_thread.start()
+        mobile_thread.start()
+
+        # 等待线程完成
+        desktop_thread.join()
+        mobile_thread.join()
+
+    earnedPoints = desktopBrowser.utils.formatNumber(accountPointsCounter - startingPoints)
+    havePoints = desktopBrowser.utils.formatNumber(accountPointsCounter)
+    logging.info(
+        f"[POINTS] Earned {earnedPoints} points today, total points: {havePoints}\n")
+
+    # 截取current_email的邮箱种类，不包含.com
+    email_type = current_email.split('@')[1].split('.')[0]
+    message_title = f"{current_email}邮箱 积分：{earnedPoints}"
+    notifier.wechat(message_title, f"本次获得积分：{earnedPoints}，总积分：{havePoints}")
+
+    # 从配置文件中读取target_point,如果不存在或者为0，则不发送通知
+    if config is not None:
+        target_point = config.get("target_point", 0)
+        if target_point > 0 and int(havePoints) >= target_point:
+            notifier.wechat(current_email, f"已达到目标积分：{target_point}，可以兑换了！")
 
 if __name__ == "__main__":
     main()
