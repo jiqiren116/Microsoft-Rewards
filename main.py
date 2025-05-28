@@ -79,14 +79,16 @@ def setupLogging():
     terminalHandler = logging.StreamHandler(sys.stdout)
     terminalHandler.setFormatter(ColoredFormatter(format))
 
-    (Path(__file__).resolve().parent / "logs").mkdir(parents=True, exist_ok=True)
+    log_dir = Path(__file__).resolve().parent / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "activity.log"
 
     logging.basicConfig(
         level=logging.INFO,
         format=format,
         handlers=[
             handlers.TimedRotatingFileHandler(
-                "logs/activity.log",
+                log_file,
                 when="midnight",
                 interval=1,
                 backupCount=2,
