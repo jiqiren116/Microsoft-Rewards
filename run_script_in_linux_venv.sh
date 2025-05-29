@@ -22,7 +22,7 @@ SCRIPT_PATH="$SCRIPT_DIR/main.py"
     echo "Script started at $(date)"
 
     # 激活虚拟环境
-    source "$VENV_ACTIVATE_PATH"
+    . "$VENV_ACTIVATE_PATH"
     echo "Virtual environment activated"
 
     # 执行 Python 脚本
