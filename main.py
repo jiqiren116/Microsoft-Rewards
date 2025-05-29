@@ -256,7 +256,9 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
     # 从配置文件中读取target_point,如果不存在或者为0，则不发送通知
     if config is not None:
         target_point = config.get("target_point", 0)
-        if target_point > 0 and int(havePoints) >= target_point:
+        # 移除 havePoints 中的逗号再转换为整数
+        have_points_int = int(havePoints.replace(',', ''))
+        if target_point > 0 and have_points_int >= target_point:
             notifier.wechat(current_email, f"已达到目标积分：{target_point}，可以兑换了！")
 
 if __name__ == "__main__":

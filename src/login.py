@@ -123,11 +123,29 @@ class Login:
             input()
 
         matrix = 0 #避免死循环
+        if self.webdriver is not None:
+            logging.info("OUT 尝试跳转到account.microsoft.com")
+            self.webdriver.get("https://account.microsoft.com/")
+            time.sleep(15)
         while not (
             urllib.parse.urlparse(self.webdriver.current_url).path == "/"
             and urllib.parse.urlparse(self.webdriver.current_url).hostname
             == "account.microsoft.com"
         ):
+            # 打印当前的URL 之前第一次打印的uri为  https://login.live.com/ppsecure/post.srf?contextid=31365397EB6A09FD&opid=E9743DD0F2561F73&bk=1748483451&uaid=e6bea1540dbe4227b90fd19ec1331b3e&pid=0
+            logging.info(f"[LOGIN] 当前的URL: {self.webdriver.current_url}")
+            try:   
+                # 检测元素是否可见（超时时间设为1秒，非阻塞）
+                element = self.utils.waitUntilVisible(
+                    By.CSS_SELECTOR, 'html[data-role-name="MeePortal"]', 20
+                )
+                if element:  # 元素存在时
+                    logging.info("[LOGIN] 检测到目标元素，终止循环")
+                    break  # 跳出循环
+            except:
+                # 元素未找到时不做处理，继续循环
+                pass
+
             logging.info(f"[LOGIN] 第{matrix}次：is in account.microsoft.com, waiting...")
             self.utils.tryDismissAllMessages()
             time.sleep(15)
