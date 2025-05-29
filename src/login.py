@@ -66,14 +66,16 @@ class Login:
         return points
 
     def executeLogin(self):
-        self.utils.waitUntilVisible(By.ID, "usernameEntry", 10)
+        self.utils.waitUntilVisible(By.ID, "usernameEntry", 30)
         logging.info("[LOGIN] " + "Writing email...")
         self.webdriver.find_element(By.ID, "usernameEntry").send_keys(
             self.browser.username
         )
+        logging.info("[LOGIN] " + "finded usernameEntry")
         # 找到data-testid="primaryButton"的元素并点击它
-        self.utils.waitUntilClickable(By.CSS_SELECTOR, '[data-testid="primaryButton"]', 10)
+        self.utils.waitUntilClickable(By.CSS_SELECTOR, '[data-testid="primaryButton"]', 30)
         self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="primaryButton"]').click()
+        logging.info("[LOGIN] " + "finded primaryButton")
 
         time.sleep(5)
         # 尝试跳过 [获取用于登录的代码] 选择框
@@ -92,6 +94,7 @@ class Login:
                         logging.info("[LOGIN] Clicked '使用密码' button.")
                 except Exception as e:
                     logging.error(f"[LOGIN] Failed to find or click '使用密码' button: {e}")
+        logging.info("[LOGIN] " + "after for title_element")
 
         try:
             self.enterPassword(self.browser.password)
@@ -106,7 +109,7 @@ class Login:
                     logging.info(f"[LOGIN] 使用人脸、指纹或 PIN 更快地登录 选择框出现")
                     try:
                         # 找到data-testid="secondaryButton"的元素并点击它, 这是跳过按钮
-                        self.utils.waitUntilClickable(By.CSS_SELECTOR, '[data-testid="secondaryButton"]', 10)
+                        self.utils.waitUntilClickable(By.CSS_SELECTOR, '[data-testid="secondaryButton"]', 30)
                         self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="secondaryButton"]').click()
                         time.sleep(10)
                         logging.info("[LOGIN] Clicked '跳过' button.")
@@ -142,6 +145,10 @@ class Login:
                 if element:  # 元素存在时
                     logging.info("[LOGIN] 检测到目标元素，终止循环")
                     break  # 跳出循环
+                # 如果当前url包括 account.microsoft.com 则终止循环
+                if "account.microsoft.com" in self.webdriver.current_url:
+                    logging.info("[LOGIN] 检测到目标元素account.microsoft.com，终止循环")
+                    break  # 跳出循环
             except:
                 # 元素未找到时不做处理，继续循环
                 pass
@@ -168,13 +175,13 @@ class Login:
         logging.info("[LOGIN] " + "after is in account.microsoft.com")
 
         self.utils.waitUntilVisible(
-            By.CSS_SELECTOR, 'html[data-role-name="MeePortal"]', 10
+            By.CSS_SELECTOR, 'html[data-role-name="MeePortal"]', 30
         )
 
     def enterPassword(self, password):
-        self.utils.waitUntilClickable(By.NAME, "passwd", 10)
+        self.utils.waitUntilClickable(By.NAME, "passwd", 30)
         logging.info("[LOGIN] " + "waitUntilClickable(By.NAME, 'passwd', 10)")
-        self.utils.waitUntilClickable(By.CSS_SELECTOR, '[data-testid="primaryButton"]', 10)
+        self.utils.waitUntilClickable(By.CSS_SELECTOR, '[data-testid="primaryButton"]', 30)
         logging.info("[LOGIN] " + "waitUntilClickable(By.CSS_SELECTOR, '[data-testid=\"primaryButton\"]', 10)")
         # browser.webdriver.find_element(By.NAME, "passwd").send_keys(password)
         # If password contains special characters like " ' or \, send_keys() will not work
