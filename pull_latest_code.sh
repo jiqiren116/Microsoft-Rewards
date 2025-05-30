@@ -1,6 +1,6 @@
 #!/bin/bash
-# 进入项目目录
-PROJECT_DIR="/root/workspace/Microsoft-Rewards"
+# 自动获取当前脚本所在目录
+PROJECT_DIR="$(dirname "$(realpath "$0")")"
 cd $PROJECT_DIR
 
 # 拉取最新代码
