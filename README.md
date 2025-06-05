@@ -149,3 +149,6 @@ deactivate
 ## 关于搜索的一些问题
 1、 看贴吧说，大概10分钟可以搜索12分。
 2、 看贴吧说，一个ip最多可以搞6个账户，我目前是同ip下4个账户。
+
+## 配置tash scheduler时无命令行运行
+https://blog.csdn.net/qq_39188306/article/details/88689224
