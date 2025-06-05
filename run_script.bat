@@ -11,4 +11,5 @@ REM 替换为你的 Python 脚本相对于当前脚本目录的相对路径
 set SCRIPT_PATH=%SCRIPT_DIR%main.py
 REM 执行 Python 脚本
 %PYTHON_PATH% %SCRIPT_PATH%
-pause
+REM pause pause命令的作用是暂停脚本的执行，直到用户按下任意键，才会继续执行后续操作或者关闭命令行窗口。这里暂时用不到，暂时注释掉
+REM task scheduler配置无命令行窗口黑框执行程序链接 https://blog.csdn.net/qq_39188306/article/details/88689224
