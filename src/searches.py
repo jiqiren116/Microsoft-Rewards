@@ -13,7 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from src.browser import Browser
 
 LOG_TAG = "[CMY]"
-PAUSE_TIME = 10  # 每隔5次搜索的暂停时间，单位为 分钟
+PAUSE_TIME = 10  # 每隔4次搜索的暂停时间，单位为 分钟
 INTERVAL_NUMBER = 4  # 每隔多少次搜索暂停一次
 
 class Searches:
@@ -67,10 +67,8 @@ class Searches:
                 logging.error(f"{LOG_TAG} 数据中缺少键: {str(e)}")
             except Exception as e:
                 logging.error(f"{LOG_TAG} 发生未知错误: {str(e)}")
-            finally:
-                logging.info(f"{LOG_TAG} 请求 {url} 失败, 尝试下一个搜索词来源...")
-                # 无论请求成功与否，都尝试下一个搜索词来源
-                current_source_index += 1 
+                
+            current_source_index += 1 
 
         # 如果所有搜索词来源都失败，则返回默认搜索词
         logging.info(f"{LOG_TAG} 获取热门搜索词失败，使用默认搜索词！")
