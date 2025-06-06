@@ -84,6 +84,8 @@ class Browser:
         options.add_argument("--ignore-ssl-errors")
 
         seleniumwireOptions: dict[str, Any] = {"verify_ssl": False}
+        seleniumwireOptions["connection_timeout"] = 300  # 设置连接超时时间为 300 秒
+        seleniumwireOptions["read_timeout"] = 300  # 设置读取超时时间为 300 秒
 
         if self.proxy:
             seleniumwireOptions["proxy"] = {

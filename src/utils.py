@@ -11,6 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.common.exceptions import WebDriverException
 
 from .constants import BASE_URL
 
@@ -92,7 +93,7 @@ class Utils:
         targetUrl = urllib.parse.urlparse(BASE_URL)
         self.webdriver.get(BASE_URL)
         reloads = 0
-        interval = 1
+        interval = 15
         intervalCount = 0
 
         while True:
@@ -112,8 +113,14 @@ class Utils:
                 currentUrl.hostname != targetUrl.hostname
             ) and self.tryDismissAllMessages():
                 logging.info("Current URL doesn't match target URL. Navigating back to home.")
-                time.sleep(1)
-                self.webdriver.get(BASE_URL)
+                time.sleep(10)
+                try:
+                    self.webdriver.get(BASE_URL)
+                except WebDriverException as e:
+                    logging.error(f"WebDriver异常: 无法导航到主页: {e}")
+                except Exception as e:
+                    logging.error(f"未知异常: 无法导航到主页: {e}")
+
             time.sleep(interval)
             intervalCount += 1
             if intervalCount >= reloadInterval:
