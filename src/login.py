@@ -195,12 +195,20 @@ class Login:
         time.sleep(5)
 
     def checkBingLogin(self):
+        max_retries = 30  # 最大重试次数
+        retry_count = 0
         self.webdriver.get(
             "https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F"
         )
-        while True:
+        while retry_count < max_retries:
+            logging.info(
+                f"[LOGIN][checkBingLogin] " + f"Bing login attempt {retry_count + 1}/{max_retries}"
+            )
             currentUrl = urllib.parse.urlparse(self.webdriver.current_url)
+            logging.info(
+                f"[LOGIN][checkBingLogin] " + f"Current URL: {currentUrl}" )
             if currentUrl.hostname == "cn.bing.com" and currentUrl.path == "/":
+                logging.info("[LOGIN] " + "currentUrl.hostname == 'cn.bing.com' and currentUrl.path == '/'")
                 time.sleep(3)
                 self.utils.tryDismissBingCookieBanner()
                 with contextlib.suppress(Exception):
@@ -208,3 +216,7 @@ class Login:
                         logging.info("[LOGIN] " + "Bing login successful!")
                         return
             time.sleep(1)
+            retry_count += 1
+            self.webdriver.get("https://cn.bing.com/")
+            time.sleep(10)
+        logging.error("[LOGIN] Bing login failed after multiple attempts.")
