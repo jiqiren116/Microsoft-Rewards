@@ -66,12 +66,20 @@ def main():
     loadedAccounts = setupAccounts()
     logging.info(f"{LOG_TAG} setupAccounts done")
     logging.info(f"{LOG_TAG} loadedAccounts: {loadedAccounts}")
+    # 定义一个变量来收集每个账号的结果
+    all_account_results = []
     for currentAccount in loadedAccounts:
         try:
-            executeBot(currentAccount, notifier, args)
+            account_result = executeBot(currentAccount, notifier, args)
+            if account_result:
+                all_account_results.append(account_result)
         except Exception as e:
             logging.exception(f"{e.__class__.__name__}: {e}")
-    notifier.wechat("执行完成", f"账号全部执行完成")
+            account_result = f"{currentAccount.get('username', '未知账号')} 执行失败: {str(e)}"
+            all_account_results.append(account_result)
+    # 拼接所有账号的结果信息
+    result_message = "\n".join(all_account_results)
+    notifier.wechat("执行完成", f"所有账号执行结果如下：\n{result_message}")
     logging.info(f"{LOG_TAG} 账号全部执行完成")
 
 
@@ -252,7 +260,8 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
     # 截取current_email的邮箱种类，不包含.com
     email_type = current_email.split('@')[1].split('.')[0]
     message_title = f"{email_type}邮箱 积分：{earnedPoints}"
-    notifier.wechat(message_title, f"本次获得积分：{earnedPoints}，总积分：{havePoints}")
+    # 注释掉原来单独发送消息的代码
+    # notifier.wechat(message_title, f"本次获得积分：{earnedPoints}，总积分：{havePoints}")
 
     # 从配置文件中读取target_point,如果不存在或者为0，则不发送通知
     if config is not None:
@@ -261,6 +270,8 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
         have_points_int = int(havePoints.replace(',', ''))
         if target_point > 0 and have_points_int >= target_point:
             notifier.wechat(current_email, f"已达到目标积分：{target_point}，可以兑换了！")
+    # 返回当前账号的执行结果
+    return f"{message_title}，本次获得积分：{earnedPoints}，总积分：{havePoints} "
 
 if __name__ == "__main__":
     main()
