@@ -17,7 +17,11 @@ class PunchCards:
         self.webdriver = browser.webdriver
 
     def completePunchCard(self, url: str, childPromotions: dict):
-        self.webdriver.get(url)
+        try:
+            self.webdriver.get(url)
+        except Exception:  # pylint: disable=broad-except
+            logging.exception("Failed to load the page")
+            self.browser.refresh()
         for child in childPromotions:
             if child["complete"] is False:
                 if child["promotionType"] == "urlreward":
@@ -68,7 +72,11 @@ class PunchCards:
                 self.browser.utils.resetTabs()
         logging.info("[PUNCH CARDS] Completed the Punch Cards successfully !")
         time.sleep(2)
-        self.webdriver.get(BASE_URL)
+        try:
+            self.webdriver.get(BASE_URL)
+        except Exception:  # pylint: disable=broad-except
+            logging.exception(f"Failed to load the page {BASE_URL}")
+            self.browser.refresh()
         time.sleep(2)
 
     def completePromotionalItems(self):

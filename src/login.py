@@ -17,7 +17,12 @@ class Login:
 
     def login(self):
         logging.info("[LOGIN] " + "Logging-in...")
-        self.webdriver.get("https://login.live.com/")
+        try:
+            self.webdriver.get("https://login.live.com/")
+        except Exception:  # pylint: disable=broad-except
+            logging.exception(f"{LOG_TAG} '无法打开登录页面 https://login.live.com/，尝试刷新页面...', Exception: {str(e)}")
+            self.webdriver.refresh()
+            time.sleep(10)
         alreadyLoggedIn = False # 初始化已登录状态为 False
         while True:
             try:
@@ -128,7 +133,11 @@ class Login:
         matrix = 0 #避免死循环
         if self.webdriver is not None:
             logging.info("OUT 尝试跳转到account.microsoft.com")
-            self.webdriver.get("https://account.microsoft.com/")
+            try:
+                self.webdriver.get("https://account.microsoft.com/")
+            except Exception:  # pylint: disable=broad-except
+                logging.exception(f"{LOG_TAG} '无法打开登录页面 https://account.microsoft.com/，尝试刷新页面...', Exception: {str(e)}")
+                self.webdriver.refresh()
             time.sleep(15)
         while not (
             urllib.parse.urlparse(self.webdriver.current_url).path == "/"
@@ -161,7 +170,12 @@ class Login:
             # 尝试跳转到网页 https://account.microsoft.com/
             if self.webdriver is not None:
                 logging.info("尝试跳转到account.microsoft.com")
-                self.webdriver.get("https://account.microsoft.com/")
+                try:
+                    self.webdriver.get("https://account.microsoft.com/")
+                except Exception:  # pylint: disable=broad-except
+                    # 如果出现异常，打印错误信息，并刷新页面
+                    logging.exception(f"{LOG_TAG} '无法打开登录页面 https://account.microsoft.com/，尝试刷新页面...', Exception: {str(e)}")
+                    self.webdriver.refresh()
                 time.sleep(15)
             else:
                 logging.error("[LOGIN] WebDriver is None, cannot proceed to navigate.")
@@ -197,9 +211,13 @@ class Login:
     def checkBingLogin(self):
         max_retries = 30  # 最大重试次数
         retry_count = 0
-        self.webdriver.get(
-            "https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F"
-        )
+        try:
+            self.webdriver.get(
+                "https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F"
+            )
+        except Exception:  # pylint: disable=broad-except
+            logging.exception(f"{LOG_TAG} '无法打开登录页面 https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F，尝试刷新页面...', Exception: {str(e)}")
+            self.webdriver.refresh()
         while retry_count < max_retries:
             logging.info(
                 f"[LOGIN][checkBingLogin] " + f"Bing login attempt {retry_count + 1}/{max_retries}"
@@ -217,6 +235,10 @@ class Login:
                         return
             time.sleep(1)
             retry_count += 1
-            self.webdriver.get("https://cn.bing.com/")
+            try:
+                self.webdriver.get("https://cn.bing.com/")
+            except Exception:  # pylint: disable=broad-except
+                logging.exception(f"{LOG_TAG} '无法打开登录页面 https://cn.bing.com/，尝试刷新页面...', Exception: {str(e)}")
+                self.webdriver.refresh()
             time.sleep(10)
         logging.error("[LOGIN] Bing login failed after multiple attempts.")

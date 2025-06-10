@@ -91,7 +91,16 @@ class Utils:
         reloadThreshold = 5
         reloadInterval = 10
         targetUrl = urllib.parse.urlparse(BASE_URL)
-        self.webdriver.get(BASE_URL)
+        try:
+            self.webdriver.get(BASE_URL)
+        except WebDriverException as e:
+            logging.exception(f"WebDriver异常: 无法导航到主页 {BASE_URL}: {e}")
+            self.webdriver.refresh()
+            time.sleep(10)
+        except Exception as e:
+            logging.exception(f"未知异常: 无法导航到主页 {BASE_URL}: {e}")
+            self.webdriver.refresh()
+            time.sleep(10)
         reloads = 0
         interval = 15
         intervalCount = 0
@@ -117,9 +126,13 @@ class Utils:
                 try:
                     self.webdriver.get(BASE_URL)
                 except WebDriverException as e:
-                    logging.error(f"WebDriver异常: 无法导航到主页: {e}")
+                    logging.exception(f"WebDriver异常: 无法导航到主页: {e}")
+                    self.webdriver.refresh()
+                    time.sleep(10)
                 except Exception as e:
-                    logging.error(f"未知异常: 无法导航到主页: {e}")
+                    logging.exception(f"未知异常: 无法导航到主页: {e}")
+                    self.webdriver.refresh()
+                    time.sleep(10)
 
             time.sleep(interval)
             intervalCount += 1

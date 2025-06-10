@@ -21,16 +21,6 @@ class Searches:
         self.browser = browser
         self.webdriver = browser.webdriver
 
-    def getRelatedTerms(self, word: str) -> list:
-        try:
-            r = requests.get(
-                f"https://api.bing.com/osjson.aspx?query={word}",
-                headers={"User-agent": self.browser.userAgent},
-            )
-            return r.json()[1]
-        except Exception:  # pylint: disable=broad-except
-            return []
-
     def getHotSearch(self):
         # 默认搜索词，热门搜索词请求失败时使用
         default_search_words = ["盛年不重来，一日难再晨", "千里之行，始于足下", "少年易学老难成，一寸光阴不可轻", "敏而好学，不耻下问", "海内存知已，天涯若比邻", "三人行，必有我师焉",
@@ -60,13 +50,13 @@ class Searches:
                         logging.info(f"{LOG_TAG} 获取热门搜索词成功！")
                         return search_words  # 返回搜索词列表
             except requests.RequestException as e:
-                logging.error(f"{LOG_TAG} 请求 {url} 失败: {str(e)}")
+                logging.exception(f"{LOG_TAG} 请求 {url} 失败: {str(e)}")
             except json.JSONDecodeError as e:
-                logging.error(f"{LOG_TAG} 解析JSON数据失败: {str(e)}")
+                logging.exception(f"{LOG_TAG} 解析JSON数据失败: {str(e)}")
             except KeyError as e:
-                logging.error(f"{LOG_TAG} 数据中缺少键: {str(e)}")
+                logging.exception(f"{LOG_TAG} 数据中缺少键: {str(e)}")
             except Exception as e:
-                logging.error(f"{LOG_TAG} 发生未知错误: {str(e)}")
+                logging.exception(f"{LOG_TAG} 发生未知错误: {str(e)}")
                 
             current_source_index += 1 
 
@@ -110,9 +100,7 @@ class Searches:
                         remainingSearches, remainingSearchesM = self.browser.utils.getRemainingSearches()
                     except Exception as e:
                         logging.error(f"{LOG_TAG} 获取剩余搜索次数时发生错误: {str(e)}")
-                        # 出错时假设剩余搜索次数为 0，退出循环
-                        remainingSearches = 0
-                        remainingSearchesM = 0
+                        time.sleep(300)
 
                     if (DesktopOrMobile == 'Mobile' and remainingSearchesM == 0) or (DesktopOrMobile == 'Desktop' and remainingSearches == 0):
                         logging.info(
@@ -154,9 +142,7 @@ class Searches:
                     logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索 SUCCESS，搜索词:[{search_word}] \n搜索词:[{search_word}] 搜索前积分:{pointsCounter}, 搜索后积分:{points}\n")
                     pointsCounter = points
                 else:
-                    temp_sleep_time = random.randint(300, 480)
-                    logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索 FAIL，SELLP {temp_sleep_time}秒，搜索词:[{search_word}] \n")
-                    time.sleep(temp_sleep_time)
+                    logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索 FAIL，搜索词:[{search_word}] \n")
 
             logging.info(
                 f"[BING] ===== Finished [{currentAccount}] [{DesktopOrMobile}] Edge Bing searches ! ====="
@@ -181,13 +167,13 @@ class Searches:
                 searchbar.submit()
                 time.sleep(random.randint(15, 30))  
                 return self.browser.utils.getBingAccountPoints()
-            except TimeoutException:
+            except TimeoutException as e:
                 retries += 1
-                logging.error(f"[BING][TimeoutException] Timeout, retrying {retries}/{max_retries} in 5 seconds...")
+                logging.exception(f"[BING][TimeoutException] Timeout, retrying {retries}/{max_retries} in 5 seconds...\n Error Message: {str(e)}")
                 time.sleep(300)
             except Exception as e:  # 捕获其他异常
                 retries += 1
-                logging.error(f"[BING][Exception] An unexpected error occurred: {str(e)}, retrying {retries}/{max_retries} in 5 seconds...")
+                logging.exception(f"[BING][Exception] An unexpected error occurred: {str(e)}, retrying {retries}/{max_retries} in 5 seconds...")
                 time.sleep(300)
         logging.error(f"[BING] Failed after {max_retries} retries.")
         return 0  # 重试失败后返回 0
