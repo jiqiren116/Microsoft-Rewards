@@ -157,6 +157,7 @@ class Searches:
         retries = 0
         while retries < max_retries:
             try:
+                logging.info(f"[BING] 第{retries+1}次搜索，搜索词为:[{word}]")
                 self.webdriver.get("https://bing.com")
                 # 等待搜索框元素可见
                 searchbar = WebDriverWait(self.webdriver, 40).until(
@@ -170,10 +171,12 @@ class Searches:
             except TimeoutException as e:
                 retries += 1
                 logging.exception(f"[BING][TimeoutException] Timeout, retrying {retries}/{max_retries} in 5 seconds...\n Error Message: {str(e)}")
-                time.sleep(300)
+                self.webdriver.refresh()
+                time.sleep(30)
             except Exception as e:  # 捕获其他异常
                 retries += 1
                 logging.exception(f"[BING][Exception] An unexpected error occurred: {str(e)}, retrying {retries}/{max_retries} in 5 seconds...")
-                time.sleep(300)
+                self.webdriver.refresh()
+                time.sleep(30)
         logging.error(f"[BING] Failed after {max_retries} retries.")
         return 0  # 重试失败后返回 0
