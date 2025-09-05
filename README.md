@@ -94,6 +94,11 @@
 ## Future Features
 
 - GUI
+## python创建虚拟环境
+`python -m venv .venv`
+
+## 根据requirements.txt安装依赖
+pip install -r requirements.txt  --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
 ## windows如何进入python的venv环境
 
@@ -151,4 +156,19 @@ deactivate
 2、 看贴吧说，一个ip最多可以搞6个账户，我目前是同ip下4个账户。
 
 ## 配置tash scheduler时无命令行运行
+用task scheduler运行的脚本是run_script_venv.bat
 https://blog.csdn.net/qq_39188306/article/details/88689224
+
+## 注意，要先下载谷歌浏览器和对应的chromedriver驱动，并把路径配置到config.json文件中
+例如像下面这样配置
+```config.json
+{
+    "driver_executable_path": "D:\\App\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe",
+    "browser_executable_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "add_visible_flag": true,
+    "pushplus_token": "your pushplus_token",
+    "target_point": 17925
+}
+```
+
+## 随后将邮箱和密码配置到accounts.json文件中

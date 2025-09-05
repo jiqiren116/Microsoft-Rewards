@@ -88,11 +88,11 @@ class Login:
         title_elements = self.webdriver.find_elements(By.CSS_SELECTOR, '[data-testid="title"]')
         # 遍历所有data-testid="title"的元素,判断文本中是否包含"获取用于登录的代码",尝试跳过
         for title_element in title_elements:
-            if "获取用于登录的代码" in title_element.text:
+            if "获取用于登录的代码" in title_element.text or "使用另一种方式登录" in title_element.text:
                 logging.info(f"[LOGIN] 登录有密码和邮箱两种")
                 try:
                     # 使用 CSS 选择器结合 xpath 定位包含 "使用密码" 文本的按钮
-                    view_footer = self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="viewFooter"]')
+                    view_footer = self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="tileList"]')
                     password_button = view_footer.find_element(By.XPATH, ".//span[contains(text(), '使用密码')]")
                     if password_button.is_displayed() and password_button.is_enabled():
                         password_button.click()

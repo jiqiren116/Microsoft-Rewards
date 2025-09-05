@@ -21,3 +21,4 @@ REM 停用虚拟环境
 call deactivate
 
 pause
+REM task scheduler配置无命令行窗口黑框执行程序链接 https://blog.csdn.net/qq_39188306/article/details/88689224

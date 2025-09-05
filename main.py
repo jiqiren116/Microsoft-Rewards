@@ -36,7 +36,8 @@ def setupConfig() -> dict:
             "browser_executable_path": "your browser path",
             "add_visible_flag": False,
             "pushplus_token": "your pushplus token",
-            "target_point": 17925
+            "target_point": 17925,
+            "use_multithreading": False  # 添加多线程控制标志，默认为False(单线程)
         }
         configPath.write_text(
             json.dumps(default_config, indent=4),
@@ -240,17 +241,28 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
             except Exception as e:
                 logging.exception(f"Mobile search failed: {e}")
 
-        # 创建线程
-        desktop_thread = threading.Thread(target=desktop_search)
-        mobile_thread = threading.Thread(target=mobile_search)
+        # 从配置中获取是否使用多线程的标志
+        use_multithreading = config.get("use_multithreading", False)
+        logging.info(f"[CMY][EXECUTION MODE] use_multithreading: {use_multithreading}")
+        
+        if use_multithreading:
+            logging.info("[EXECUTION MODE] 使用多线程模式执行搜索任务")
+            # 创建线程
+            desktop_thread = threading.Thread(target=desktop_search)
+            mobile_thread = threading.Thread(target=mobile_search)
 
-        # 启动线程
-        desktop_thread.start()
-        mobile_thread.start()
+            # 启动线程
+            desktop_thread.start()
+            mobile_thread.start()
 
-        # 等待线程完成
-        desktop_thread.join()
-        mobile_thread.join()
+            # 等待线程完成
+            desktop_thread.join()
+            mobile_thread.join()
+        else:
+            logging.info("[EXECUTION MODE] 使用单线程模式执行搜索任务")
+            # 单线程依次执行
+            desktop_search()
+            mobile_search()
 
     earnedPoints = desktopBrowser.utils.formatNumber(accountPointsCounter - startingPoints)
     havePoints = desktopBrowser.utils.formatNumber(accountPointsCounter)
