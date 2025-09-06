@@ -157,7 +157,7 @@ class Searches:
         retries = 0
         while retries < max_retries:
             try:
-                logging.info(f"[BING] 第{retries+1}次搜索，搜索词为:[{word}]")
+                # logging.info(f"[BING] 第{retries+1}次搜索，搜索词为:[{word}]")
                 self.webdriver.get("https://bing.com")
                 # 等待搜索框元素可见
                 searchbar = WebDriverWait(self.webdriver, 40).until(
