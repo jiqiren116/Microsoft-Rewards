@@ -93,7 +93,8 @@ class Searches:
                 logging.info(f"[BING][{DesktopOrMobile}]获取到的搜索词个数为:{len(search_terms)},大于等于需要搜索的个数:{numberOfSearches}，满足需求")
 
             i = 0
-            while True:
+            # 添加最大搜索次数50的限制条件
+            while i < 50:
                 # 每隔4次搜索暂停10分钟
                 if i != 0 and i % INTERVAL_NUMBER == 0:
                     try:
@@ -143,6 +144,9 @@ class Searches:
                     pointsCounter = points
                 else:
                     logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索 FAIL，搜索词:[{search_word}] \n")
+                # 如果已达到最大搜索次数50，输出日志
+                if i >= 50:
+                    logging.info(f"[BING] [{currentAccount}] [{DesktopOrMobile}] 已达到最大搜索次数50次，停止搜索")
 
             logging.info(
                 f"[BING] ===== Finished [{currentAccount}] [{DesktopOrMobile}] Edge Bing searches ! ====="
