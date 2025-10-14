@@ -83,6 +83,24 @@ class Login:
         logging.info("[LOGIN] " + "finded primaryButton")
 
         time.sleep(5)
+        # 跳过移动端登陆时在github上登陆，选择其它登陆方法
+        title_elements = self.webdriver.find_elements(By.CSS_SELECTOR, '[data-testid="title"]')
+        # 遍历所有data-testid="title"的元素,判断文本中是否包含"获取用于登录的代码",尝试跳过
+        for title_element in title_elements:
+            if "在 GitHub 上登录" in title_element.text:
+                logging.info(f"[LOGIN] 在 GitHub 上登录")
+                try:
+                    # 使用 CSS 选择器结合 xpath 定位包含 "使用密码" 文本的按钮
+                    view_footer = self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="viewFooter"]')
+                    password_button = view_footer.find_element(By.XPATH, ".//span[contains(text(), '其他登录方法')]")
+                    if password_button.is_displayed() and password_button.is_enabled():
+                        password_button.click()
+                        logging.info("[LOGIN] Clicked '其他登录方法' button.")
+                except Exception as e:
+                    logging.error(f"[LOGIN] Failed to find or click '其他登录方法' button: {e}")
+        logging.info("[LOGIN] " + "after for 在 GitHub 上登录")
+        time.sleep(5)
+
         # 尝试跳过 [获取用于登录的代码] 选择框
         # 找到所有data-testid="title"的元素
         title_elements = self.webdriver.find_elements(By.CSS_SELECTOR, '[data-testid="title"]')
