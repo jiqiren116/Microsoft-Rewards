@@ -20,7 +20,7 @@ class Login:
         try:
             self.webdriver.get("https://login.live.com/")
         except Exception:  # pylint: disable=broad-except
-            logging.exception(f"{LOG_TAG} '无法打开登录页面 https://login.live.com/，尝试刷新页面...', Exception: {str(e)}")
+            logging.error(f"{LOG_TAG} '无法打开登录页面 https://login.live.com/，尝试刷新页面...', Exception: {str(e)}")
             self.webdriver.refresh()
             time.sleep(10)
         alreadyLoggedIn = False # 初始化已登录状态为 False
@@ -85,7 +85,6 @@ class Login:
         time.sleep(5)
         # 跳过移动端登陆时在github上登陆，选择其它登陆方法
         title_elements = self.webdriver.find_elements(By.CSS_SELECTOR, '[data-testid="title"]')
-        # 遍历所有data-testid="title"的元素,判断文本中是否包含"获取用于登录的代码",尝试跳过
         for title_element in title_elements:
             if "在 GitHub 上登录" in title_element.text:
                 logging.info(f"[LOGIN] 在 GitHub 上登录")
@@ -106,8 +105,8 @@ class Login:
         title_elements = self.webdriver.find_elements(By.CSS_SELECTOR, '[data-testid="title"]')
         # 遍历所有data-testid="title"的元素,判断文本中是否包含"获取用于登录的代码",尝试跳过
         for title_element in title_elements:
-            if "获取用于登录的代码" in title_element.text or "使用另一种方式登录" in title_element.text:
-                logging.info(f"[LOGIN] 登录有密码和邮箱两种")
+            if "使用另一种方式登录" in title_element.text:
+                logging.info(f"[LOGIN] 使用另一种方式登录")
                 try:
                     # 使用 CSS 选择器结合 xpath 定位包含 "使用密码" 文本的按钮
                     view_footer = self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="tileList"]')
@@ -115,6 +114,20 @@ class Login:
                     if password_button.is_displayed() and password_button.is_enabled():
                         password_button.click()
                         logging.info("[LOGIN] Clicked '使用密码' button.")
+                        break
+                except Exception as e:
+                    logging.error(f"[LOGIN] Failed to find or click '使用密码' button: {e}")
+
+            if "获取用于登录的代码" in title_element.text:
+                logging.info(f"[LOGIN] 登录有密码和邮箱两种")
+                try:
+                    # 使用 CSS 选择器结合 xpath 定位包含 "使用密码" 文本的按钮
+                    view_footer = self.webdriver.find_element(By.CSS_SELECTOR, '[data-testid="viewFooter"]')
+                    password_button = view_footer.find_element(By.XPATH, ".//span[contains(text(), '使用密码')]")
+                    if password_button.is_displayed() and password_button.is_enabled():
+                        password_button.click()
+                        logging.info("[LOGIN] Clicked '使用密码' button.")
+                        break
                 except Exception as e:
                     logging.error(f"[LOGIN] Failed to find or click '使用密码' button: {e}")
         logging.info("[LOGIN] " + "after for title_element")
@@ -154,7 +167,7 @@ class Login:
             try:
                 self.webdriver.get("https://account.microsoft.com/")
             except Exception:  # pylint: disable=broad-except
-                logging.exception(f"{LOG_TAG} '无法打开登录页面 https://account.microsoft.com/，尝试刷新页面...', Exception: {str(e)}")
+                logging.error(f"{LOG_TAG} '无法打开登录页面 https://account.microsoft.com/，尝试刷新页面...', Exception: {str(e)}")
                 self.webdriver.refresh()
             time.sleep(15)
         while not (
@@ -192,7 +205,7 @@ class Login:
                     self.webdriver.get("https://account.microsoft.com/")
                 except Exception:  # pylint: disable=broad-except
                     # 如果出现异常，打印错误信息，并刷新页面
-                    logging.exception(f"{LOG_TAG} '无法打开登录页面 https://account.microsoft.com/，尝试刷新页面...', Exception: {str(e)}")
+                    logging.error(f"{LOG_TAG} '无法打开登录页面 https://account.microsoft.com/，尝试刷新页面...', Exception: {str(e)}")
                     self.webdriver.refresh()
                 time.sleep(15)
             else:
@@ -234,7 +247,7 @@ class Login:
                 "https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F"
             )
         except Exception:  # pylint: disable=broad-except
-            logging.exception(f"{LOG_TAG} '无法打开登录页面 https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F，尝试刷新页面...', Exception: {str(e)}")
+            logging.error(f"{LOG_TAG} '无法打开登录页面 https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F，尝试刷新页面...', Exception: {str(e)}")
             self.webdriver.refresh()
         while retry_count < max_retries:
             logging.info(
@@ -256,7 +269,7 @@ class Login:
             try:
                 self.webdriver.get("https://cn.bing.com/")
             except Exception:  # pylint: disable=broad-except
-                logging.exception(f"{LOG_TAG} '无法打开登录页面 https://cn.bing.com/，尝试刷新页面...', Exception: {str(e)}")
+                logging.error(f"{LOG_TAG} '无法打开登录页面 https://cn.bing.com/，尝试刷新页面...', Exception: {str(e)}")
                 self.webdriver.refresh()
             time.sleep(10)
         logging.error("[LOGIN] Bing login failed after multiple attempts.")

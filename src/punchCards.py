@@ -20,7 +20,7 @@ class PunchCards:
         try:
             self.webdriver.get(url)
         except Exception:  # pylint: disable=broad-except
-            logging.exception("Failed to load the page")
+            logging.error("Failed to load the page")
             self.browser.refresh()
         for child in childPromotions:
             if child["complete"] is False:
@@ -75,7 +75,7 @@ class PunchCards:
         try:
             self.webdriver.get(BASE_URL)
         except Exception:  # pylint: disable=broad-except
-            logging.exception(f"Failed to load the page {BASE_URL}")
+            logging.error(f"Failed to load the page {BASE_URL}")
             self.browser.refresh()
         time.sleep(2)
 

@@ -75,7 +75,7 @@ def main():
             if account_result:
                 all_account_results.append(account_result)
         except Exception as e:
-            logging.exception(f"{e.__class__.__name__}: {e}")
+            logging.error(f"{e.__class__.__name__}: {e}")
             account_result = f"{currentAccount.get('username', '未知账号')} 执行失败: {str(e)}"
             all_account_results.append(account_result)
     # 拼接所有账号的结果信息
@@ -176,7 +176,7 @@ def setupAccounts() -> dict:
         logging.warning(noAccountsNotice)
         exit()
     loadedAccounts = json.loads(accountPath.read_text(encoding="utf-8"))
-    random.shuffle(loadedAccounts) # 怀疑这里打乱顺序会导致浏览器打开失败，因此注释
+    # random.shuffle(loadedAccounts) # 怀疑这里打乱顺序会导致浏览器打开失败，因此注释
     return loadedAccounts
 
 
@@ -220,7 +220,7 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
                     with lock:
                         accountPointsCounter = max(accountPointsCounter, points)
             except Exception as e:
-                logging.exception(f"Desktop search failed: {e}")
+                logging.error(f"Desktop search failed: {e}")
 
         def mobile_search():
             nonlocal accountPointsCounter
@@ -239,7 +239,7 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
                         with lock:
                             accountPointsCounter = max(accountPointsCounter, mobile_points)
             except Exception as e:
-                logging.exception(f"Mobile search failed: {e}")
+                logging.error(f"Mobile search failed: {e}")
 
         # 从配置中获取是否使用多线程的标志
         use_multithreading = config.get("use_multithreading", False)

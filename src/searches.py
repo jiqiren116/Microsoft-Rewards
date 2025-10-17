@@ -50,13 +50,13 @@ class Searches:
                         logging.info(f"{LOG_TAG} 获取热门搜索词成功！")
                         return search_words  # 返回搜索词列表
             except requests.RequestException as e:
-                logging.exception(f"{LOG_TAG} 请求 {url} 失败: {str(e)}")
+                logging.error(f"{LOG_TAG} 请求 {url} 失败: {str(e)}")
             except json.JSONDecodeError as e:
-                logging.exception(f"{LOG_TAG} 解析JSON数据失败: {str(e)}")
+                logging.error(f"{LOG_TAG} 解析JSON数据失败: {str(e)}")
             except KeyError as e:
-                logging.exception(f"{LOG_TAG} 数据中缺少键: {str(e)}")
+                logging.error(f"{LOG_TAG} 数据中缺少键: {str(e)}")
             except Exception as e:
-                logging.exception(f"{LOG_TAG} 发生未知错误: {str(e)}")
+                logging.error(f"{LOG_TAG} 发生未知错误: {str(e)}")
                 
             current_source_index += 1 
 
@@ -174,12 +174,12 @@ class Searches:
                 return self.browser.utils.getBingAccountPoints()
             except TimeoutException as e:
                 retries += 1
-                logging.exception(f"[BING][TimeoutException] Timeout, retrying {retries}/{max_retries} in 5 seconds...\n Error Message: {str(e)}")
+                logging.error(f"[BING][TimeoutException] Timeout, retrying {retries}/{max_retries} in 5 seconds...\n Error Message: {str(e)}")
                 self.webdriver.refresh()
                 time.sleep(30)
             except Exception as e:  # 捕获其他异常
                 retries += 1
-                logging.exception(f"[BING][Exception] An unexpected error occurred: {str(e)}, retrying {retries}/{max_retries} in 5 seconds...")
+                logging.error(f"[BING][Exception] An unexpected error occurred: {str(e)}, retrying {retries}/{max_retries} in 5 seconds...")
                 self.webdriver.refresh()
                 time.sleep(30)
         logging.error(f"[BING] Failed after {max_retries} retries.")
