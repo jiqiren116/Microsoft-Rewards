@@ -3,5 +3,5 @@ selenium
 ipapi
 undetected-chromedriver
 selenium-wire
-setuptools #在 ModuleNotFoundError: No module named 'distutils', Python 3.13 及更高版本中，distutils 模块已被完全移除，无法通过直接安装 distutils 来解决问题。不过，你可以通过安装 setuptools 包来间接恢复 distutils 的功能，因为 setuptools 提供了 distutils 的兼容实现。
-blinker==1.7.0 # ModuleNotFoundError: No module named 'blinker._saferef', prevents issues on newer versions
+setuptools
+blinker==1.7.0

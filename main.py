@@ -284,7 +284,7 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
             notifier.wechat(current_email, f"已达到目标积分：{target_point}，可以兑换了！")
     # 当earnedPoints小于150时，发送异常提醒
     if int(earnedPoints) < 150:
-        notifier.wechat("异常，积分不足150", f"注意：今日获得积分不足150，可能存在异常情况！，清查看log日志")
+        notifier.wechat(f"{current_email}异常，积分不足150", f"注意：今日获得积分不足150，可能存在异常情况！，清查看log日志")
 
     # 返回当前账号的执行结果
     return f"{message_title}，本次获得积分：{earnedPoints}，总积分：{havePoints} "
