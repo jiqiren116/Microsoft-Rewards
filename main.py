@@ -80,7 +80,7 @@ def main():
             all_account_results.append(account_result)
     # 拼接所有账号的结果信息
     result_message = "\n".join(all_account_results)
-    # notifier.wechat("执行完成", f"所有账号执行结果如下：\n{result_message}") # 改为默认正常情况不发信息，只有异常的时候发。
+    notifier.wechat("执行完成", f"所有账号执行结果如下：\n{result_message}") # 改为默认正常情况不发信息，只有异常的时候发。
     logging.info(f"{LOG_TAG} 账号全部执行完成")
 
 
@@ -284,7 +284,8 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
             notifier.wechat(current_email, f"已达到目标积分：{target_point}，可以兑换了！")
     # 当earnedPoints小于150时，发送异常提醒
     if int(earnedPoints) < 150:
-        notifier.wechat(f"{current_email}异常，积分不足150", f"注意：今日获得积分不足150，可能存在异常情况！，清查看log日志")
+        pass
+        # notifier.wechat(f"{current_email}异常，积分不足150", f"注意：今日获得积分不足150，可能存在异常情况！，清查看log日志")
 
     # 返回当前账号的执行结果
     return f"{message_title}，本次获得积分：{earnedPoints}，总积分：{havePoints} "
