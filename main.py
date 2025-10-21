@@ -12,6 +12,7 @@ from src.constants import VERSION
 from src.loggingColoredFormatter import ColoredFormatter
 from src.notifier import Notifier
 from src.utils import Utils
+from src.AppTasks import AppTasks  # 添加这一行导入
 
 POINTS_COUNTER = 0
 
@@ -30,6 +31,7 @@ def setupConfig() -> dict:
     configPath = Path(__file__).resolve().parent / "config.json"
     if not configPath.exists():
         # 创建默认配置文件 add_visible_flag为false表示默认不开启-v参数，浏览器无头模式，代表浏览器不可见
+        # enable_app_tasks为true表示开启App任务，默认开启
         # target_point为17925，表示目标积分为17925，17925是100元天猫卡
         default_config = {
             "driver_executable_path": "your driver path",
@@ -37,7 +39,8 @@ def setupConfig() -> dict:
             "add_visible_flag": False,
             "pushplus_token": "your pushplus token",
             "target_point": 17925,
-            "use_multithreading": False  # 添加多线程控制标志，默认为False(单线程)
+            "use_multithreading": False,
+            "enable_app_tasks": True
         }
         configPath.write_text(
             json.dumps(default_config, indent=4),
@@ -195,6 +198,18 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
         logging.info(
             f"[POINTS] You have {desktopBrowser.utils.formatNumber(accountPointsCounter)} points on your account !"
         )
+        
+        # 执行App端任务 - 修改这部分代码
+        if config.get("enable_app_tasks", True):
+            try:
+                app_tasks = AppTasks(desktopBrowser)
+                app_results = app_tasks.run_all_tasks()
+                logging.info(f"{LOG_TAG} {current_email} App端任务执行结果: {app_results}")
+            except Exception as e:
+                logging.error(f"{LOG_TAG} {current_email} App端任务执行异常: {str(e)}")
+        else:
+            logging.info(f"{LOG_TAG} {current_email} App端任务已禁用")
+
         DailySet(desktopBrowser).completeDailySet()
         PunchCards(desktopBrowser).completePunchCards()
         MorePromotions(desktopBrowser).completeMorePromotions()
