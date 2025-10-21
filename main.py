@@ -286,7 +286,7 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
 
     # 截取current_email的邮箱种类，不包含.com
     email_type = current_email.split('@')[1].split('.')[0]
-    message_title = f"{email_type}邮箱 积分：{earnedPoints}"
+    message_title = f"{email_type}邮箱"
     # 注释掉原来单独发送消息的代码
     # notifier.wechat(message_title, f"本次获得积分：{earnedPoints}，总积分：{havePoints}")
 
