@@ -196,14 +196,14 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
         logging.info(f"{LOG_TAG} Login(desktopBrowser).login() done")
         startingPoints = accountPointsCounter
         logging.info(
-            f"[POINTS] You have {desktopBrowser.utils.formatNumber(accountPointsCounter)} points on your account !"
+            f"[POINTS][main.py] You have {desktopBrowser.utils.formatNumber(accountPointsCounter)} points on your account !"
         )
         
         # 执行App端任务 - 修改这部分代码
         if config.get("enable_app_tasks", True):
             try:
                 app_tasks = AppTasks(desktopBrowser)
-                app_results = app_tasks.run_all_tasks()
+                app_results = app_tasks.run_all_tasks(startingPoints)
                 logging.info(f"{LOG_TAG} {current_email} App端任务执行结果: {app_results}")
             except Exception as e:
                 logging.error(f"{LOG_TAG} {current_email} App端任务执行异常: {str(e)}")
@@ -234,6 +234,8 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
 
                     with lock:
                         accountPointsCounter = max(accountPointsCounter, points)
+                else:
+                    logging.info("[BING] DESKTOP_SEARCH no searches remaining")
             except Exception as e:
                 logging.error(f"Desktop search failed: {e}")
 
@@ -253,6 +255,8 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
                         logging.info("[BING] MOBILE_SEARCH finished")
                         with lock:
                             accountPointsCounter = max(accountPointsCounter, mobile_points)
+                else:
+                    logging.info("[BING] MOBILE_SEARCH no searches remaining")
             except Exception as e:
                 logging.error(f"Mobile search failed: {e}")
 
@@ -278,9 +282,16 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
             # 单线程依次执行
             desktop_search()
             mobile_search()
+            # 获取最新的积分
+        finish_points = desktopBrowser.utils.getAccountPoints()
+        logging.info(
+            f"[POINTS][main.py] You have {finish_points} points on your account ~~finish_points!"
+        )
 
-    earnedPoints = desktopBrowser.utils.formatNumber(accountPointsCounter - startingPoints)
-    havePoints = desktopBrowser.utils.formatNumber(accountPointsCounter)
+    # earnedPoints = desktopBrowser.utils.formatNumber(accountPointsCounter - startingPoints)
+    # havePoints = desktopBrowser.utils.formatNumber(accountPointsCounter)
+    earnedPoints = desktopBrowser.utils.formatNumber(finish_points - startingPoints)
+    havePoints = desktopBrowser.utils.formatNumber(finish_points)
     logging.info(
         f"[POINTS] Earned {earnedPoints} points today, total points: {havePoints}\n")
 
@@ -303,7 +314,7 @@ def executeBot(currentAccount, notifier: Notifier, args: argparse.Namespace):
         # notifier.wechat(f"{current_email}异常，积分不足150", f"注意：今日获得积分不足150，可能存在异常情况！，清查看log日志")
 
     # 返回当前账号的执行结果
-    return f"{message_title}，本次获得积分：{earnedPoints}，总积分：{havePoints} "
+    return f"{message_title}，本次获得积分：{earnedPoints}，app签到积分：{app_results['app_sign_in']}，app阅读积分：{app_results['app_read_articles']}，总积分：{havePoints} "
 
 if __name__ == "__main__":
     main()

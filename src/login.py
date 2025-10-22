@@ -62,7 +62,7 @@ class Login:
         logging.info("[LOGIN] " + "after goHome in login")
         points = self.utils.getAccountPoints()
         logging.info(
-            f"[POINTS] You have {self.utils.formatNumber(points)} points on your account!"
+            f"[POINTS][login.py] You have {self.utils.formatNumber(points)} points on your account!"
         )
 
         logging.info("[LOGIN] " + "Ensuring login on Bing...")

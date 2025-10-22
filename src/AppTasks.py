@@ -89,7 +89,7 @@ class AppTasks:
         
         return False
     
-    def app_sign_in(self) -> bool:
+    def app_sign_in(self, startingPoints: int) -> int:
         """
         执行App端每日签到任务
         """
@@ -147,18 +147,27 @@ class AppTasks:
             
             if response.status_code == 200:
                 result = response.json()
-                logging.info(f"{LOG_TAG} {self.username} App端签到成功: {result}")
+                logging.info(f"{LOG_TAG} {self.username} App端签到结果: {result}")
+                # result格式为{'response': {'balance': 16622, 'activity': {'id': '5d8c1360-6146-4865-9a14-152e1a8ce18e', 'id_old': None, 'm': 'cn', 't': '2025-10-22T01:32:31.3040489+00:00', 'type': 101, 'p': 0, 'q': 1, 'a': {'offerid': 'Gamification_Sapphire_DailyCheckIn', 'date': '20251022', 'signIn': 'false', 'timezoneOffset': '08:00:00', 'ModifiedDateTimeStamp': '2025-10-22T01:32:31.3670735+00:00'}, 'rbTxEntry': None}, 'info': None, 'isDuplicate': False, 'notifications': None, 'isExpiredTrialUser': False}, 'correlationId': '7c49563a759040408230445e90ea08fd', 'code': 0}
+                # 提取新的积分值
+                new_points = result["response"]["balance"]
+                
+                # 检查是否成功签到
+                if new_points > startingPoints:
+                    logging.info(f"{LOG_TAG} {self.username} App端签到成功，获得 {new_points - startingPoints} 积分")
+                else:
+                    logging.warning(f"{LOG_TAG} {self.username} App端签到可能已完成或失败")
                 
                 # 增加延时让积分有时间更新
                 time.sleep(random.uniform(5, 10))
-                return True
+                return new_points - startingPoints
             else:
                 logging.error(f"{LOG_TAG} {self.username} App端签到HTTP请求失败: {response.status_code}")
                 logging.error(f"{LOG_TAG} {self.username} 响应内容: {response.text}")
         except Exception as e:
             logging.error(f"{LOG_TAG} {self.username} App端签到执行异常: {str(e)}")
         
-        return False
+        return -1
     
     def get_read_progress(self) -> Optional[Dict[str, Any]]:
         """
@@ -195,7 +204,7 @@ class AppTasks:
         
         return None
     
-    def app_read_articles(self) -> bool:
+    def app_read_articles(self) -> int:
         """
         执行App端阅读文章任务
         """
@@ -292,19 +301,19 @@ class AppTasks:
                 logging.info(f"{LOG_TAG} {self.username} 任务完成后更新的进度数据: {json.dumps(updated_progress.get('response', {}).get('promotions', [])[:2], ensure_ascii=False)}")
             
             logging.info(f"{LOG_TAG} {self.username} App端阅读任务完成，共获得 {total_points} 积分")
-            return True
+            return total_points
             
         except Exception as e:
             logging.error(f"{LOG_TAG} {self.username} App端阅读任务执行异常: {str(e)}")
         
-        return False
+        return -1
     
-    def run_all_tasks(self) -> Dict[str, bool]:
+    def run_all_tasks(self, startingPoints: int) -> Dict[str, int]:
         """
         运行所有App端任务
         """
         results = {
-            "app_sign_in": self.app_sign_in(),
+            "app_sign_in": self.app_sign_in(startingPoints),
             "app_read_articles": self.app_read_articles()
         }
         return results
