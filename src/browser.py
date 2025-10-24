@@ -194,9 +194,36 @@ class Browser:
 
         sessionUuid = uuid.uuid5(uuid.NAMESPACE_DNS, self.username)
         sessionsDir = sessionsDir / str(sessionUuid) / self.browserType
+        
+        # 添加会话文件夹清理逻辑
+        if sessionsDir.exists():
+            try:
+                import shutil
+                shutil.rmtree(sessionsDir)
+                logging.info(f"已清理旧会话文件: {sessionsDir}")
+            except Exception as e:
+                logging.warning(f"清理会话文件失败: {e}")
+        
         sessionsDir.mkdir(parents=True, exist_ok=True)
         return sessionsDir
 
+    def isSessionValid(self) -> bool:
+        """检查WebDriver会话是否有效"""
+        try:
+            # 通过获取当前URL判断会话是否有效
+            self.webdriver.current_url
+            return True
+        except Exception:
+            return False
+    
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """改进浏览器退出逻辑"""
+        try:
+            if self.webdriver and self.isSessionValid():
+                self.closeBrowser()
+        except Exception as e:
+            logging.error(f"关闭浏览器时发生错误: {e}")
+    
     def getCCodeLang(self, lang: str, geo: str) -> tuple:
         if lang is None or geo is None:
             try:

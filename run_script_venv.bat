@@ -2,6 +2,10 @@ REM 在Windows中使用task scheduler创建定时任务
 REM 定时任务的执行脚本，用于运行使用venv虚拟环境的Python脚本
 @echo off
 
+REM 新增：关闭所有残留的Chrome进程
+taskkill /F /IM chrome.exe >nul 2>&1
+taskkill /F /IM chromedriver.exe >nul 2>&1
+
 REM 获取当前脚本所在目录
 set SCRIPT_DIR=%~dp0
 

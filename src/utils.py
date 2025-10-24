@@ -91,6 +91,14 @@ class Utils:
         reloadThreshold = 5
         reloadInterval = 10
         targetUrl = urllib.parse.urlparse(BASE_URL)
+        
+        # 检查会话是否有效
+        try:
+            self.webdriver.current_url
+        except Exception:
+            logging.error("WebDriver会话已失效，无法导航到主页")
+            return False
+            
         try:
             self.webdriver.get(BASE_URL)
         except WebDriverException as e:
@@ -106,6 +114,13 @@ class Utils:
         intervalCount = 0
 
         while True:
+            # 增加会话有效性检查
+            try:
+                self.webdriver.current_url
+            except Exception:
+                logging.error("会话在导航过程中失效，终止goHome操作")
+                return False
+                
             self.tryDismissCookieBanner()
             try:
                 # 使用 WebDriverWait 等待元素出现，设置超时时间为 5 秒
