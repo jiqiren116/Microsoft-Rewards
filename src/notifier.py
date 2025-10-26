@@ -11,12 +11,20 @@ MAX_LENGTHS = {
 
 
 class Notifier:
-    def __init__(self, args):
-        self.args = {
-            key: value
-            for key, value in vars(args).items()
-            if key in MAX_LENGTHS.keys() and value is not None
-        }
+    def __init__(self, args=None):
+        # 处理 args 为 None 或其他非对象类型的情况
+        if args is None:
+            self.args = {}
+        else:
+            try:
+                self.args = {
+                    key: value
+                    for key, value in vars(args).items()
+                    if key in MAX_LENGTHS.keys() and value is not None
+                }
+            except TypeError:
+                # 如果 args 不支持 vars() 操作，初始化为空字典
+                self.args = {}
         # 调用 Utils 类的静态方法读取配置文件
         self.config = Utils.load_config()
 

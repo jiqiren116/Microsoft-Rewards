@@ -11,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from src.browser import Browser
+from src.notifier import Notifier  # 添加Notifier导入
 
 LOG_TAG = "[CMY]"
 PAUSE_TIME = 10  # 每隔4次搜索的暂停时间，单位为 分钟
@@ -93,6 +94,7 @@ class Searches:
                 logging.info(f"[BING][{DesktopOrMobile}]获取到的搜索词个数为:{len(search_terms)},大于等于需要搜索的个数:{numberOfSearches}，满足需求")
 
             i = 0
+            consecutive_failures = 0  # 添加连续失败计数器
             # 添加最大搜索次数50的限制条件
             while i < 50:
                 # 每隔4次搜索暂停10分钟
@@ -142,8 +144,16 @@ class Searches:
                 if points > pointsCounter:
                     logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索 SUCCESS，搜索词:[{search_word}] \n搜索词:[{search_word}] 搜索前积分:{pointsCounter}, 搜索后积分:{points}\n")
                     pointsCounter = points
+                    consecutive_failures = 0  # 搜索成功，重置连续失败计数器
                 else:
                     logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索 FAIL，搜索词:[{search_word}] \n")
+                    consecutive_failures += 1  # 搜索失败，增加连续失败计数器
+                    # 移动端连续8次搜索失败时停止搜索
+                    if DesktopOrMobile == 'Mobile' and consecutive_failures >= 8:
+                        logging.error(f"[BING] [{currentAccount}] [{DesktopOrMobile}] 连续{consecutive_failures}次搜索失败，停止搜索")
+                        notifier = Notifier()
+                        notifier.wechat(currentAccount, f"[BING] [{currentAccount}] [{DesktopOrMobile}] 连续{consecutive_failures}次搜索失败，停止搜索")
+                        break
                 # 如果已达到最大搜索次数50，输出日志
                 if i >= 50:
                     logging.info(f"[BING] [{currentAccount}] [{DesktopOrMobile}] 已达到最大搜索次数50次，停止搜索")
