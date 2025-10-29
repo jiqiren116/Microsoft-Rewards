@@ -148,8 +148,8 @@ class Searches:
                 else:
                     logging.info(f"[BING][{DesktopOrMobile}] 第{i}次搜索 FAIL，搜索词:[{search_word}] \n")
                     consecutive_failures += 1  # 搜索失败，增加连续失败计数器
-                    # 移动端连续8次搜索失败时停止搜索
-                    if DesktopOrMobile == 'Mobile' and consecutive_failures >= 8:
+                    # 连续8次搜索失败时停止搜索
+                    if consecutive_failures >= 8:
                         logging.error(f"[BING] [{currentAccount}] [{DesktopOrMobile}] 连续{consecutive_failures}次搜索失败，停止搜索")
                         notifier = Notifier()
                         notifier.wechat(currentAccount, f"[BING] [{currentAccount}] [{DesktopOrMobile}] 连续{consecutive_failures}次搜索失败，停止搜索")
