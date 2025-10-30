@@ -5,6 +5,8 @@ import requests
 from requests import HTTPError, Response
 
 import logging
+import time
+
 LOG_TAG = "[CMY]"
 
 
@@ -140,35 +142,42 @@ class GenerateUserAgent:
         Returns:
             str: The latest version of Microsoft Edge.
         """
-        response = self.getWebdriverPage(
-            "https://edgeupdates.microsoft.com/api/products"
-        )
-        data = response.json()
-        stableProduct = next(
-            (product for product in data if product["Product"] == "Stable"),
-            None,
-        )
-        if stableProduct:
-            releases = stableProduct["Releases"]
-            androidRelease = next(
-                (release for release in releases if release["Platform"] == "Android"),
+        try:
+            response = self.getWebdriverPage(
+                "https://edgeupdates.microsoft.com/api/products"
+            )
+            data = response.json()
+            stableProduct = next(
+                (product for product in data if product["Product"] == "Stable"),
                 None,
             )
-            windowsRelease = next(
-                (
-                    release
-                    for release in releases
-                    if release["Platform"] == "Windows"
-                    and release["Architecture"] == "x64"
-                ),
-                None,
-            )
-            if androidRelease and windowsRelease:
-                return (
-                    windowsRelease["ProductVersion"],
-                    androidRelease["ProductVersion"],
+            if stableProduct:
+                releases = stableProduct["Releases"]
+                androidRelease = next(
+                    (release for release in releases if release["Platform"] == "Android"),
+                    None,
                 )
-        raise HTTPError("Failed to get Edge versions.")
+                windowsRelease = next(
+                    (
+                        release
+                        for release in releases
+                        if release["Platform"] == "Windows"
+                        and release["Architecture"] == "x64"
+                    ),
+                    None,
+                )
+                if androidRelease and windowsRelease:
+                    return (
+                        windowsRelease["ProductVersion"],
+                        androidRelease["ProductVersion"],
+                    )
+        except Exception as e:
+            logging.error(f"Failed to get Edge versions from API: {str(e)}")
+            # 提供硬编码的默认版本作为备用
+            logging.info("Using fallback Edge versions")
+            
+        # 返回硬编码的默认版本作为最后的备用方案
+        return ("124.0.2478.97", "124.0.2478.97")
 
     def getChromeVersion(self) -> str:
         """
@@ -208,10 +217,25 @@ class GenerateUserAgent:
     @staticmethod
     def getWebdriverPage(url: str) -> Response:
         response = None
-        response = requests.get(url)
-        if response.status_code != requests.codes.ok:  # pylint: disable=no-member
-            raise HTTPError(
-                f"Failed to get webdriver page {url}. "
-                f"Status code: {response.status_code}"
-            )
-        return response
+        max_retries = 3
+        retry_delay = 5  # 秒
+        timeout = 30  # 秒
+        
+        for attempt in range(max_retries):
+            try:
+                response = requests.get(url, timeout=timeout)
+                if response.status_code == requests.codes.ok:  # pylint: disable=no-member
+                    return response
+                else:
+                    logging.warning(f"Attempt {attempt+1} failed with status code {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                logging.warning(f"Attempt {attempt+1} failed with error: {str(e)}")
+            
+            if attempt < max_retries - 1:
+                logging.info(f"Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+        
+        # 如果所有重试都失败，抛出异常
+        raise HTTPError(
+            f"Failed to get webdriver page {url} after {max_retries} attempts."
+        )
